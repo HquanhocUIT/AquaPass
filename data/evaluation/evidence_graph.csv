@@ -1,0 +1,12 @@
+graph_id,incident_id,decision_id,source_node,source_type,relationship,target_node,target_type,confidence,state,rationale
+G-001,INC-FISH-001,DEC-FISH-001,EV-001,evidence,supports,INC-FISH-001,incident,0.90,known,"Citizen reports establish that fish mortality occurred at multiple shoreline locations."
+G-002,INC-FISH-001,DEC-FISH-001,EV-002,evidence,supports,HYP-001,hypothesis,0.85,known,"Low dissolved oxygen observation supports the low dissolved oxygen hypothesis."
+G-003,INC-FISH-001,DEC-FISH-001,EV-003,evidence,supports,HYP-001,hypothesis,0.65,known,"Heavy rainfall provides contextual support for conditions that may contribute to low dissolved oxygen."
+G-004,INC-FISH-001,DEC-FISH-001,EV-003,evidence,supports,HYP-002,hypothesis,0.75,known,"Heavy rainfall provides contextual support for rainfall-driven runoff or pollution input."
+G-005,INC-FISH-001,DEC-FISH-001,EV-004,evidence,supports,HYP-002,hypothesis,0.70,known,"Satellite-derived anomaly provides contextual support for a possible environmental change near the affected water body."
+G-006,INC-FISH-001,DEC-FISH-001,HYP-001,hypothesis,informs,DEC-FISH-001,decision,0.90,plausible,"The low dissolved oxygen hypothesis is relevant to the pending investigation decision."
+G-007,INC-FISH-001,DEC-FISH-001,HYP-002,hypothesis,informs,DEC-FISH-001,decision,0.85,plausible,"The runoff or pollution hypothesis is relevant to the pending investigation decision."
+G-008,INC-FISH-001,DEC-FISH-001,HYP-003,hypothesis,informs,DEC-FISH-001,decision,0.55,uncertain,"Temperature-related stress remains an uncertain hypothesis relevant to the pending investigation."
+G-009,INC-FISH-001,DEC-FISH-001,EV-005,evidence,missing_for,HYP-001,hypothesis,0.90,missing,"Independent field dissolved oxygen measurement is needed to verify the low dissolved oxygen hypothesis."
+G-010,INC-FISH-001,DEC-FISH-001,EV-006,evidence,missing_for,HYP-002,hypothesis,0.85,missing,"Laboratory water chemistry testing could provide evidence relevant to the runoff or pollution hypothesis."
+G-011,INC-FISH-001,DEC-FISH-001,EV-007,evidence,corroborates,INC-FISH-001,incident,0.60,missing,"Additional citizen verification could corroborate the spatial extent of the reported incident."
