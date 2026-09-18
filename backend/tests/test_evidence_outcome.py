@@ -107,10 +107,10 @@ def test_candidate_with_high_decision_value_but_low_score_is_rejected():
             make_candidate(
                 evidence_id="EV-001",
                 decision_value=0.90,
-                reliability=0.20,
-                feasibility=0.20,
-                cost=0.90,
-                time=0.90,
+                reliability=0.00,
+                feasibility=0.00,
+                cost=1.00,
+                time=1.00,
             )
         ]
     )
