@@ -1,0 +1,4 @@
+incident_id,decision_id,evidence_id,freshness
+INC-FISH-001,DEC-FISH-001,EV-005,0.80
+INC-FISH-001,DEC-FISH-001,EV-006,0.65
+INC-FISH-001,DEC-FISH-001,EV-007,0.95
