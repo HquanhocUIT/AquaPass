@@ -1,0 +1,36 @@
+{
+  "resourceType": "Observation",
+  "id": "demo-do-observation",
+  "identifier": [
+    {
+      "system": "https://aquapass.example.org/identifier/evidence",
+      "value": "00000000-0000-4000-8000-000000000703"
+    }
+  ],
+  "basedOn": [
+    {"reference": "ServiceRequest/demo-field-do-request"}
+  ],
+  "status": "final",
+  "code": {
+    "coding": [
+      {
+        "system": "https://aquapass.example.org/CodeSystem/evidence-code",
+        "code": "FIELD_DISSOLVED_OXYGEN",
+        "display": "Field dissolved oxygen measurement"
+      }
+    ],
+    "text": "Dissolved oxygen in freshwater"
+  },
+  "subject": {"reference": "Location/demo-site-a"},
+  "effectiveDateTime": "2026-09-19T09:00:00+07:00",
+  "valueQuantity": {
+    "value": 3.4,
+    "unit": "mg/L",
+    "system": "http://unitsofmeasure.org",
+    "code": "mg/L"
+  },
+  "method": {"text": "Simulated portable dissolved oxygen meter"},
+  "note": [
+    {"text": "SIMULATED DATA ONLY. Not a verified environmental measurement."}
+  ]
+}

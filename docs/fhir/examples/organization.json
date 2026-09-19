@@ -1,0 +1,6 @@
+{
+  "resourceType": "Organization",
+  "id": "demo-field-team",
+  "active": true,
+  "name": "Simulated field team"
+}
