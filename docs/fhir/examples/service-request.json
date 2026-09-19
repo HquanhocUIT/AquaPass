@@ -1,0 +1,31 @@
+{
+  "resourceType": "ServiceRequest",
+  "id": "demo-field-do-request",
+  "identifier": [
+    {
+      "system": "https://aquapass.example.org/identifier/evidence-request",
+      "value": "00000000-0000-4000-8000-000000000701"
+    }
+  ],
+  "status": "active",
+  "intent": "order",
+  "priority": "urgent",
+  "code": {
+    "coding": [
+      {
+        "system": "https://aquapass.example.org/CodeSystem/evidence-code",
+        "code": "FIELD_DISSOLVED_OXYGEN",
+        "display": "Field dissolved oxygen measurement"
+      }
+    ],
+    "text": "Measure dissolved oxygen at the monitoring site"
+  },
+  "subject": {"reference": "Location/demo-site-a"},
+  "authoredOn": "2026-09-19T08:40:00+07:00",
+  "reasonCode": [
+    {"text": "Verify a low-confidence dissolved oxygen sensor reading before a pending decision"}
+  ],
+  "note": [
+    {"text": "SIMULATED DEMO REQUEST. AquaPass incident 8f03fdce-cc4e-4fc1-a90b-15b2122e68b8; decision 00000000-0000-4000-8000-000000000201."}
+  ]
+}
