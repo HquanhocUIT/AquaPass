@@ -57,16 +57,15 @@ def _freshness_score(
     row: dict[str, str],
 ) -> float:
     """
-    Prototype freshness-only baseline.
+    Prototype freshness baseline.
 
-    The current ranking gold-set schema does not yet contain
-    an explicit freshness field.
-
-    Therefore, acquisition time is temporarily used as a
-    freshness proxy:
+    The current gold-set schema has no explicit freshness field.
+    Therefore, acquisition time is used only as a temporary proxy:
 
         lower acquisition time
-        -> higher freshness score
+        -> higher proxy freshness score
+
+    This must not be interpreted as a validated freshness model.
     """
 
     return 1.0 - float(row["time"])

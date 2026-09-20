@@ -3,7 +3,6 @@ import pytest
 from app.modules.ranking.ranking_engine import (
     DEFAULT_WEIGHTS,
     EvidenceCandidate,
-    EvidenceCandidate,
     RankingWeights,
     calculate_score,
     rank_evidence,

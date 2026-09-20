@@ -102,11 +102,11 @@ def calculate_score(
     Calculate the deterministic prototype ranking score.
 
     Score =
-        α * DecisionValue
-        + β * Reliability
-        + γ * Feasibility
-        - δ * Cost
-        - ε * Time
+        w_decision * DecisionValue
+        + w_reliability * Reliability
+        + w_feasibility * Feasibility
+        - w_cost * Cost
+        - w_time * Time
     """
 
     _validate_candidate(candidate)

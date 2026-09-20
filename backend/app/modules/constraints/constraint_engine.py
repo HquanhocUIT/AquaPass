@@ -20,6 +20,13 @@ class ActorCapacity:
 
 
 @dataclass(frozen=True)
+class EvidenceRequirement:
+    evidence_id: str
+    required_capability: str
+    required_location: str | None = None
+
+
+@dataclass(frozen=True)
 class ConstraintContext:
     decision_deadline: datetime
     required_capability: str
@@ -66,7 +73,23 @@ def _validate_capacity(actor: ActorCapacity) -> None:
         )
 
 
-def _validate_context(context: ConstraintContext) -> None:
+def _validate_requirement(
+    requirement: EvidenceRequirement,
+) -> None:
+    if not requirement.evidence_id:
+        raise ValueError(
+            "evidence_id must not be empty"
+        )
+
+    if not requirement.required_capability:
+        raise ValueError(
+            "required_capability must not be empty"
+        )
+
+
+def _validate_context(
+    context: ConstraintContext,
+) -> None:
     if not context.required_capability:
         raise ValueError(
             "required_capability must not be empty"
@@ -78,16 +101,17 @@ def evaluate_actor_capacity(
     context: ConstraintContext,
 ) -> ConstraintResult:
     """
-    Evaluate whether one actor can satisfy the evidence request.
+    Evaluate whether one actor can satisfy an evidence request.
 
     Hard constraints:
     - capability mismatch
+    - location mismatch
     - actor explicitly full
-    - actor availability starts after the decision deadline
+    - actor becomes available after the decision deadline
     - expected result arrives after the decision deadline
 
     Soft constraint:
-    - busy actors receive a penalty when they remain operationally usable
+    - busy actors remain usable but receive a penalty
     """
 
     _validate_capacity(actor)
@@ -98,6 +122,23 @@ def evaluate_actor_capacity(
     if actor.capability != context.required_capability:
         reasons.append(
             "Actor capability does not match the required evidence."
+        )
+
+        return ConstraintResult(
+            feasible=False,
+            penalty=1.0,
+            reasons=tuple(reasons),
+            actor_id=actor.actor_id,
+            actor_name=actor.actor_name,
+            expected_delay_minutes=actor.expected_delay_minutes,
+        )
+
+    if (
+        context.required_location is not None
+        and actor.location != context.required_location
+    ):
+        reasons.append(
+            "Actor location does not match the required evidence location."
         )
 
         return ConstraintResult(
@@ -139,7 +180,9 @@ def evaluate_actor_capacity(
 
     arrival_time = (
         actor.available_from
-        + timedelta(minutes=actor.expected_delay_minutes)
+        + timedelta(
+            minutes=actor.expected_delay_minutes
+        )
     )
 
     if arrival_time > context.decision_deadline:
@@ -202,9 +245,76 @@ def evaluate_capacity_options(
         key=lambda result: (
             not result.feasible,
             result.penalty,
-            result.expected_delay_minutes
-            if result.expected_delay_minutes is not None
-            else float("inf"),
+            (
+                result.expected_delay_minutes
+                if result.expected_delay_minutes is not None
+                else float("inf")
+            ),
             result.actor_id or "",
         ),
+    )
+
+
+def evaluate_evidence_requirement(
+    requirement: EvidenceRequirement,
+    actors: Iterable[ActorCapacity],
+    decision_deadline: datetime,
+) -> ConstraintResult:
+    """
+    Evaluate an evidence requirement against available actors.
+
+    The requirement determines WHAT and WHERE is needed.
+    Actor capacities determine WHO can perform it.
+
+    The selected actor must satisfy all hard constraints before
+    the decision deadline.
+    """
+
+    _validate_requirement(requirement)
+
+    context = ConstraintContext(
+        decision_deadline=decision_deadline,
+        required_capability=requirement.required_capability,
+        required_location=requirement.required_location,
+    )
+
+    options = evaluate_capacity_options(
+        actors,
+        context,
+    )
+
+    if not options:
+        return ConstraintResult(
+            feasible=False,
+            penalty=1.0,
+            reasons=(
+                "No actors are available for this evidence requirement.",
+            ),
+        )
+
+    best = options[0]
+
+    return ConstraintResult(
+        feasible=best.feasible,
+        penalty=best.penalty,
+        reasons=best.reasons,
+        actor_id=best.actor_id,
+        actor_name=best.actor_name,
+        expected_delay_minutes=best.expected_delay_minutes,
+    )
+
+
+def evaluate_evidence_requirement_with_deadline(
+    requirement: EvidenceRequirement,
+    actors: Iterable[ActorCapacity],
+    decision_deadline: datetime,
+) -> ConstraintResult:
+    """
+    Backward-compatible alias for the explicit deadline API.
+    """
+
+    return evaluate_evidence_requirement(
+        requirement,
+        actors,
+        decision_deadline=decision_deadline,
     )
