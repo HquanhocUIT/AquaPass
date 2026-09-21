@@ -12,7 +12,11 @@ __pycache__/
 
 # Local configuration
 .env
-.env.local
+.env.*
+!.env.example
+*.db
+*.sqlite
+*.sqlite3
 
 # Test and coverage output
 .coverage
@@ -24,4 +28,3 @@ coverage/
 .idea/
 .DS_Store
 Thumbs.db
-
