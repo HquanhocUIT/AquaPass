@@ -1,10 +1,16 @@
 from fastapi import FastAPI
 
+from app.api.routes.ranking import router as ranking_router
+
+
 app = FastAPI(
     title="AquaPass API",
     version="0.1.0",
     description="Decision-Aware Evidence Orchestration for One Health",
 )
+
+
+app.include_router(ranking_router)
 
 
 @app.get("/health")
