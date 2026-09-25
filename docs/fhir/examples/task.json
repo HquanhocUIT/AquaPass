@@ -1,0 +1,28 @@
+{
+  "resourceType": "Task",
+  "id": "demo-field-do-task",
+  "identifier": [
+    {
+      "system": "https://aquapass.example.org/identifier/evidence-task",
+      "value": "00000000-0000-4000-8000-000000000702"
+    }
+  ],
+  "status": "completed",
+  "intent": "order",
+  "priority": "urgent",
+  "description": "Collect a field dissolved oxygen measurement at Demo Urban Lake - Site A",
+  "focus": {"reference": "ServiceRequest/demo-field-do-request"},
+  "for": {"reference": "Location/demo-site-a"},
+  "authoredOn": "2026-09-19T08:41:00+07:00",
+  "owner": {"reference": "Organization/demo-field-team"},
+  "executionPeriod": {
+    "start": "2026-09-19T08:45:00+07:00",
+    "end": "2026-09-19T09:05:00+07:00"
+  },
+  "output": [
+    {
+      "type": {"text": "Returned dissolved oxygen observation"},
+      "valueReference": {"reference": "Observation/demo-do-observation"}
+    }
+  ]
+}
