@@ -1,6 +1,61 @@
 {
   "components": {
     "schemas": {
+      "DecisionComparisonResponse": {
+        "properties": {
+          "decision_id": {
+            "title": "Decision Id",
+            "type": "string"
+          },
+          "from_version": {
+            "title": "From Version",
+            "type": "integer"
+          },
+          "hypothesis_changed": {
+            "title": "Hypothesis Changed",
+            "type": "boolean"
+          },
+          "to_version": {
+            "title": "To Version",
+            "type": "integer"
+          },
+          "triggering_evidence_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Triggering Evidence Id"
+          },
+          "uncertainty_after": {
+            "title": "Uncertainty After",
+            "type": "number"
+          },
+          "uncertainty_before": {
+            "title": "Uncertainty Before",
+            "type": "number"
+          },
+          "uncertainty_change": {
+            "title": "Uncertainty Change",
+            "type": "number"
+          }
+        },
+        "required": [
+          "decision_id",
+          "from_version",
+          "to_version",
+          "triggering_evidence_id",
+          "uncertainty_before",
+          "uncertainty_after",
+          "uncertainty_change",
+          "hypothesis_changed"
+        ],
+        "title": "DecisionComparisonResponse",
+        "type": "object"
+      },
       "DecisionCreateRequest": {
         "additionalProperties": false,
         "properties": {
@@ -62,7 +117,7 @@
             "type": "string"
           },
           "version": {
-            "$ref": "#/components/schemas/DecisionVersionResponse"
+            "$ref": "#/components/schemas/app__schemas__decision_create__DecisionVersionResponse"
           }
         },
         "required": [
@@ -120,7 +175,7 @@
           },
           "versions": {
             "items": {
-              "$ref": "#/components/schemas/DecisionVersionResponse"
+              "$ref": "#/components/schemas/app__schemas__decision_create__DecisionVersionResponse"
             },
             "title": "Versions",
             "type": "array"
@@ -181,13 +236,70 @@
         "title": "DecisionResponse",
         "type": "object"
       },
-      "DecisionVersionResponse": {
+      "DetectEvidenceGapsRequest": {
         "properties": {
-          "approval_status": {
-            "title": "Approval Status",
+          "records": {
+            "items": {
+              "$ref": "#/components/schemas/EvidenceGraphRecordRequest"
+            },
+            "minItems": 1,
+            "title": "Records",
+            "type": "array"
+          }
+        },
+        "required": [
+          "records"
+        ],
+        "title": "DetectEvidenceGapsRequest",
+        "type": "object"
+      },
+      "DetectEvidenceGapsResponse": {
+        "properties": {
+          "gaps": {
+            "items": {
+              "$ref": "#/components/schemas/EvidenceGapResponse"
+            },
+            "title": "Gaps",
+            "type": "array"
+          }
+        },
+        "required": [
+          "gaps"
+        ],
+        "title": "DetectEvidenceGapsResponse",
+        "type": "object"
+      },
+      "EvidenceCandidateRequest": {
+        "properties": {
+          "candidate_name": {
+            "minLength": 1,
+            "title": "Candidate Name",
             "type": "string"
           },
-          "approved_by": {
+          "cost": {
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Cost",
+            "type": "number"
+          },
+          "decision_value": {
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Decision Value",
+            "type": "number"
+          },
+          "evidence_id": {
+            "minLength": 1,
+            "title": "Evidence Id",
+            "type": "string"
+          },
+          "feasibility": {
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Feasibility",
+            "type": "number"
+          },
+          "infeasibility_reason": {
             "anyOf": [
               {
                 "type": "string"
@@ -196,63 +308,36 @@
                 "type": "null"
               }
             ],
-            "title": "Approved By"
+            "title": "Infeasibility Reason"
           },
-          "created_at": {
-            "format": "date-time",
-            "title": "Created At",
-            "type": "string"
+          "is_feasible": {
+            "default": true,
+            "title": "Is Feasible",
+            "type": "boolean"
           },
-          "created_by": {
-            "title": "Created By",
-            "type": "string"
+          "reliability": {
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Reliability",
+            "type": "number"
           },
-          "decision_id": {
-            "format": "uuid",
-            "title": "Decision Id",
-            "type": "string"
-          },
-          "evidence_snapshot": {
-            "additionalProperties": {
-              "items": {
-                "type": "string"
-              },
-              "type": "array"
-            },
-            "title": "Evidence Snapshot",
-            "type": "object"
-          },
-          "id": {
-            "format": "uuid",
-            "title": "Id",
-            "type": "string"
-          },
-          "summary": {
-            "title": "Summary",
-            "type": "string"
-          },
-          "uncertainty_level": {
-            "title": "Uncertainty Level",
-            "type": "string"
-          },
-          "version_number": {
-            "title": "Version Number",
-            "type": "integer"
+          "time": {
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Time",
+            "type": "number"
           }
         },
         "required": [
-          "id",
-          "decision_id",
-          "version_number",
-          "summary",
-          "uncertainty_level",
-          "evidence_snapshot",
-          "approval_status",
-          "created_by",
-          "approved_by",
-          "created_at"
+          "evidence_id",
+          "candidate_name",
+          "decision_value",
+          "reliability",
+          "feasibility",
+          "cost",
+          "time"
         ],
-        "title": "DecisionVersionResponse",
+        "title": "EvidenceCandidateRequest",
         "type": "object"
       },
       "EvidenceCreateRequest": {
@@ -330,6 +415,114 @@
           "observed_at"
         ],
         "title": "EvidenceCreateRequest",
+        "type": "object"
+      },
+      "EvidenceGapResponse": {
+        "properties": {
+          "decision_id": {
+            "title": "Decision Id",
+            "type": "string"
+          },
+          "evidence_id": {
+            "title": "Evidence Id",
+            "type": "string"
+          },
+          "incident_id": {
+            "title": "Incident Id",
+            "type": "string"
+          },
+          "priority": {
+            "title": "Priority",
+            "type": "string"
+          },
+          "reason": {
+            "title": "Reason",
+            "type": "string"
+          }
+        },
+        "required": [
+          "incident_id",
+          "decision_id",
+          "evidence_id",
+          "priority",
+          "reason"
+        ],
+        "title": "EvidenceGapResponse",
+        "type": "object"
+      },
+      "EvidenceGraphRecordRequest": {
+        "properties": {
+          "confidence": {
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Confidence",
+            "type": "number"
+          },
+          "decision_id": {
+            "minLength": 1,
+            "title": "Decision Id",
+            "type": "string"
+          },
+          "graph_id": {
+            "minLength": 1,
+            "title": "Graph Id",
+            "type": "string"
+          },
+          "incident_id": {
+            "minLength": 1,
+            "title": "Incident Id",
+            "type": "string"
+          },
+          "rationale": {
+            "minLength": 1,
+            "title": "Rationale",
+            "type": "string"
+          },
+          "relationship": {
+            "minLength": 1,
+            "title": "Relationship",
+            "type": "string"
+          },
+          "source_node": {
+            "minLength": 1,
+            "title": "Source Node",
+            "type": "string"
+          },
+          "source_type": {
+            "minLength": 1,
+            "title": "Source Type",
+            "type": "string"
+          },
+          "state": {
+            "minLength": 1,
+            "title": "State",
+            "type": "string"
+          },
+          "target_node": {
+            "minLength": 1,
+            "title": "Target Node",
+            "type": "string"
+          },
+          "target_type": {
+            "minLength": 1,
+            "title": "Target Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "graph_id",
+          "incident_id",
+          "decision_id",
+          "source_node",
+          "source_type",
+          "relationship",
+          "target_node",
+          "target_type",
+          "confidence",
+          "state",
+          "rationale"
+        ],
+        "title": "EvidenceGraphRecordRequest",
         "type": "object"
       },
       "EvidenceResponse": {
@@ -710,6 +903,118 @@
         "title": "IncidentResponse",
         "type": "object"
       },
+      "RankEvidenceRequest": {
+        "properties": {
+          "candidates": {
+            "items": {
+              "$ref": "#/components/schemas/EvidenceCandidateRequest"
+            },
+            "minItems": 1,
+            "title": "Candidates",
+            "type": "array"
+          }
+        },
+        "required": [
+          "candidates"
+        ],
+        "title": "RankEvidenceRequest",
+        "type": "object"
+      },
+      "RankEvidenceResponse": {
+        "properties": {
+          "results": {
+            "items": {
+              "$ref": "#/components/schemas/RankedEvidenceResponse"
+            },
+            "title": "Results",
+            "type": "array"
+          }
+        },
+        "required": [
+          "results"
+        ],
+        "title": "RankEvidenceResponse",
+        "type": "object"
+      },
+      "RankedEvidenceResponse": {
+        "properties": {
+          "candidate_name": {
+            "title": "Candidate Name",
+            "type": "string"
+          },
+          "cost": {
+            "title": "Cost",
+            "type": "number"
+          },
+          "decision_value": {
+            "title": "Decision Value",
+            "type": "number"
+          },
+          "evidence_id": {
+            "title": "Evidence Id",
+            "type": "string"
+          },
+          "explanation": {
+            "title": "Explanation",
+            "type": "string"
+          },
+          "feasibility": {
+            "title": "Feasibility",
+            "type": "number"
+          },
+          "rank": {
+            "title": "Rank",
+            "type": "integer"
+          },
+          "reliability": {
+            "title": "Reliability",
+            "type": "number"
+          },
+          "score": {
+            "title": "Score",
+            "type": "number"
+          },
+          "selected": {
+            "title": "Selected",
+            "type": "boolean"
+          },
+          "strengths": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Strengths",
+            "type": "array"
+          },
+          "time": {
+            "title": "Time",
+            "type": "number"
+          },
+          "tradeoffs": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Tradeoffs",
+            "type": "array"
+          }
+        },
+        "required": [
+          "evidence_id",
+          "candidate_name",
+          "score",
+          "rank",
+          "decision_value",
+          "reliability",
+          "feasibility",
+          "cost",
+          "time",
+          "explanation",
+          "strengths",
+          "tradeoffs",
+          "selected"
+        ],
+        "title": "RankedEvidenceResponse",
+        "type": "object"
+      },
       "ValidationError": {
         "properties": {
           "ctx": {
@@ -749,11 +1054,135 @@
         ],
         "title": "ValidationError",
         "type": "object"
+      },
+      "app__schemas__decision__DecisionVersionResponse": {
+        "properties": {
+          "decision_id": {
+            "title": "Decision Id",
+            "type": "string"
+          },
+          "hypothesis_summary": {
+            "title": "Hypothesis Summary",
+            "type": "string"
+          },
+          "incident_id": {
+            "title": "Incident Id",
+            "type": "string"
+          },
+          "triggering_evidence_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Triggering Evidence Id"
+          },
+          "uncertainty": {
+            "title": "Uncertainty",
+            "type": "number"
+          },
+          "uncertainty_level": {
+            "title": "Uncertainty Level",
+            "type": "string"
+          },
+          "version": {
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "decision_id",
+          "version",
+          "incident_id",
+          "uncertainty",
+          "uncertainty_level",
+          "hypothesis_summary",
+          "triggering_evidence_id"
+        ],
+        "title": "DecisionVersionResponse",
+        "type": "object"
+      },
+      "app__schemas__decision_create__DecisionVersionResponse": {
+        "properties": {
+          "approval_status": {
+            "title": "Approval Status",
+            "type": "string"
+          },
+          "approved_by": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Approved By"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "created_by": {
+            "title": "Created By",
+            "type": "string"
+          },
+          "decision_id": {
+            "format": "uuid",
+            "title": "Decision Id",
+            "type": "string"
+          },
+          "evidence_snapshot": {
+            "additionalProperties": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "title": "Evidence Snapshot",
+            "type": "object"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "summary": {
+            "title": "Summary",
+            "type": "string"
+          },
+          "uncertainty_level": {
+            "title": "Uncertainty Level",
+            "type": "string"
+          },
+          "version_number": {
+            "title": "Version Number",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "decision_id",
+          "version_number",
+          "summary",
+          "uncertainty_level",
+          "evidence_snapshot",
+          "approval_status",
+          "created_by",
+          "approved_by",
+          "created_at"
+        ],
+        "title": "DecisionVersionResponse",
+        "type": "object"
       }
     }
   },
   "info": {
-    "description": "Decision-aware evidence orchestration API for the AquaPass MVP.",
+    "description": "Decision-Aware Evidence Orchestration for One Health",
     "title": "AquaPass API",
     "version": "0.1.0"
   },
@@ -778,9 +1207,172 @@
             "description": "Successful Response"
           }
         },
-        "summary": "Root",
+        "summary": "Root"
+      }
+    },
+    "/api/decisions/{decision_id}": {
+      "get": {
+        "operationId": "get_latest_decision_api_decisions__decision_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "decision_id",
+            "required": true,
+            "schema": {
+              "title": "Decision Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/app__schemas__decision__DecisionVersionResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Latest Decision",
         "tags": [
-          "system"
+          "decisions"
+        ]
+      }
+    },
+    "/api/decisions/{decision_id}/comparison": {
+      "get": {
+        "operationId": "compare_latest_decisions_api_decisions__decision_id__comparison_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "decision_id",
+            "required": true,
+            "schema": {
+              "title": "Decision Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DecisionComparisonResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Compare Latest Decisions",
+        "tags": [
+          "decisions"
+        ]
+      }
+    },
+    "/api/evidence/gaps": {
+      "post": {
+        "operationId": "detect_gaps_api_evidence_gaps_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DetectEvidenceGapsRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DetectEvidenceGapsResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Detect Gaps",
+        "tags": [
+          "evidence"
+        ]
+      }
+    },
+    "/api/ranking/evidence": {
+      "post": {
+        "operationId": "rank_evidence_candidates_api_ranking_evidence_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RankEvidenceRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RankEvidenceResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Rank Evidence Candidates",
+        "tags": [
+          "ranking"
         ]
       }
     },
@@ -830,8 +1422,7 @@
     },
     "/health": {
       "get": {
-        "description": "Return 200 only when the configured database answers a read-only query.",
-        "operationId": "health_health_get",
+        "operationId": "health_check_health_get",
         "responses": {
           "200": {
             "content": {
@@ -840,7 +1431,7 @@
                   "additionalProperties": {
                     "type": "string"
                   },
-                  "title": "Response Health Health Get",
+                  "title": "Response Health Check Health Get",
                   "type": "object"
                 }
               }
@@ -848,10 +1439,7 @@
             "description": "Successful Response"
           }
         },
-        "summary": "Health",
-        "tags": [
-          "system"
-        ]
+        "summary": "Health Check"
       }
     },
     "/incidents": {

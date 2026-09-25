@@ -13,6 +13,7 @@ def test_health_endpoint():
     assert response.json() == {
         "status": "ok",
         "service": "aquapass-api",
+        "database": "reachable",
     }
 
 

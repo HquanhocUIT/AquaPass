@@ -18,4 +18,9 @@ def health(db: Session = Depends(get_db)) -> dict[str, str]:
         db.execute(text("SELECT 1"))
     except SQLAlchemyError as exc:
         raise HTTPException(status_code=503, detail="Database unavailable") from exc
-    return {"status": "ok", "database": "reachable"}
+
+    return {
+        "status": "ok",
+        "service": "aquapass-api",
+        "database": "reachable",
+    }
