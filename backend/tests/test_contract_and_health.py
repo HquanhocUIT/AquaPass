@@ -12,7 +12,11 @@ from tests.test_decision_create import client, test_database
 def test_health_checks_database(client: TestClient) -> None:
     response = client.get("/health")
     assert response.status_code == 200
-    assert response.json() == {"status": "ok", "database": "reachable"}
+    assert response.json() == {
+        "status": "ok",
+        "service": "aquapass-api",
+        "database": "reachable",
+    }
 
 
 def test_exported_openapi_matches_runtime() -> None:

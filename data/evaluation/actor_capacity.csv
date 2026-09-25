@@ -1,0 +1,7 @@
+actor_id,actor_name,actor_type,capability,location,status,available_from,available_until,max_concurrent_tasks,expected_delay_minutes
+ACT-001,Field Team A,field_team,dissolved_oxygen,Site 04,available,2026-09-18T09:00,2026-09-18T17:00,1,0
+ACT-002,Field Team B,field_team,dissolved_oxygen,Site 04,busy,2026-09-18T09:00,2026-09-18T17:00,1,180
+ACT-003,Water Laboratory A,laboratory,water_chemistry,Central Lab,available,2026-09-18T09:00,2026-09-18T17:00,4,4320
+ACT-004,Water Laboratory B,laboratory,water_chemistry,Central Lab,full,2026-09-18T09:00,2026-09-18T17:00,0,4320
+ACT-005,Satellite Analysis Service,satellite,satellite_analysis,Remote,busy,2026-09-18T09:00,2026-09-18T17:00,8,360
+ACT-006,Citizen Verification Network,citizen,citizen_verification,Site 04,available,2026-09-18T09:00,2026-09-18T17:00,20,60

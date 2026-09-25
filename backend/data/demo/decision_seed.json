@@ -1,0 +1,9 @@
+{
+  "decision_id": "DEC-FISH-001",
+  "incident_id": "INC-FISH-001",
+  "version": 1,
+  "uncertainty": 0.70,
+  "uncertainty_level": "HIGH",
+  "hypothesis_summary": "Low dissolved oxygen may be contributing to fish mortality.",
+  "triggering_evidence_id": null
+}

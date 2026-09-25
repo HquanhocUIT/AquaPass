@@ -1,0 +1,7 @@
+incident_id,decision_id,request_id,evidence_id,collection_strategy,requested_at,useful_at,latency_hours,cost_units,resource_units,decision_changed,useful_evidence,unnecessary_request
+INC-FISH-001,DEC-FISH-001,REQ-001,EV-005,decision_aware,2026-09-18T08:00:00,2026-09-18T10:00:00,2.0,1.0,1.0,true,true,false
+INC-FISH-001,DEC-FISH-001,REQ-002,EV-006,decision_aware,2026-09-18T08:00:00,2026-09-18T14:00:00,6.0,4.0,2.0,true,true,false
+INC-FISH-001,DEC-FISH-001,REQ-003,EV-007,decision_aware,2026-09-18T08:00:00,2026-09-18T09:30:00,1.5,0.5,1.0,false,false,true
+INC-FISH-001,DEC-FISH-001,REQ-101,EV-005,freshness_only,2026-09-18T08:00:00,2026-09-18T12:00:00,4.0,2.0,1.0,true,true,false
+INC-FISH-001,DEC-FISH-001,REQ-102,EV-007,freshness_only,2026-09-18T08:00:00,2026-09-18T09:30:00,1.5,0.5,1.0,false,false,true
+INC-FISH-001,DEC-FISH-001,REQ-103,EV-006,freshness_only,2026-09-18T08:00:00,2026-09-18T16:00:00,8.0,4.0,2.0,false,false,true

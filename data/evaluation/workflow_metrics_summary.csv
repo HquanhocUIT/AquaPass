@@ -1,0 +1,9 @@
+metric,decision_aware,freshness_only
+request_count,3,3
+useful_evidence_count,2,1
+useful_evidence_rate,0.667,0.333
+unnecessary_request_count,1,2
+unnecessary_request_rate,0.333,0.667
+average_latency_hours,3.167,4.500
+total_cost_units,5.500,6.500
+total_resource_units,4.000,4.000

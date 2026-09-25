@@ -1,0 +1,80 @@
+{
+  "incident_id": "INC-FISH-001",
+  "title": "Fish mortality after heavy rainfall",
+  "status": "open",
+  "created_at": "2026-09-17T08:00:00Z",
+  "location": {
+    "water_body_id": "WB-001",
+    "name": "Demo Lake",
+    "region": "Demo Region",
+    "latitude": 10.8231,
+    "longitude": 106.6297
+  },
+  "event": {
+    "type": "fish_mortality",
+    "observed_at": "2026-09-17T06:30:00Z",
+    "reported_by": "citizen_observer_001",
+    "estimated_affected_area_m2": 25000
+  },
+  "decision": {
+    "decision_id": "DEC-FISH-001",
+    "question": "What should be investigated or acted on next to determine the likely cause of the fish mortality?",
+    "deadline": "2026-09-17T18:00:00Z",
+    "status": "pending",
+    "decision_owner": "environmental_response_team"
+  },
+  "hypotheses": [
+    {
+      "hypothesis_id": "HYP-001",
+      "label": "Low dissolved oxygen",
+      "status": "plausible",
+      "initial_confidence": 0.72
+    },
+    {
+      "hypothesis_id": "HYP-002",
+      "label": "Rainfall-driven runoff or pollution input",
+      "status": "plausible",
+      "initial_confidence": 0.58
+    },
+    {
+      "hypothesis_id": "HYP-003",
+      "label": "Temperature-related stress",
+      "status": "uncertain",
+      "initial_confidence": 0.35
+    }
+  ],
+  "existing_evidence": [
+    {
+      "evidence_id": "EV-001",
+      "type": "citizen_report",
+      "summary": "Citizens reported fish mortality at multiple points along the lake shoreline.",
+      "observed_at": "2026-09-17T06:30:00Z"
+    },
+    {
+      "evidence_id": "EV-002",
+      "type": "sensor_observation",
+      "summary": "Dissolved oxygen readings were below the configured observation threshold at one monitoring point.",
+      "observed_at": "2026-09-17T07:00:00Z"
+    },
+    {
+      "evidence_id": "EV-003",
+      "type": "weather_observation",
+      "summary": "Heavy rainfall was recorded in the surrounding area shortly before the incident.",
+      "observed_at": "2026-09-17T05:30:00Z"
+    },
+    {
+      "evidence_id": "EV-004",
+      "type": "satellite_observation",
+      "summary": "A recent satellite-derived anomaly was detected near the affected water body.",
+      "observed_at": "2026-09-17T06:00:00Z"
+    }
+  ],
+  "context": {
+    "weather": {
+      "recent_heavy_rainfall": true
+    },
+    "environment": {
+      "water_body_type": "lake"
+    }
+  }
+}
