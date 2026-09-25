@@ -14,6 +14,7 @@ class GapPriority(str, Enum):
 @dataclass(frozen=True)
 class EvidenceGap:
     gap_id: str
+    incident_id: str
     decision_id: str
     evidence_id: str
     evidence_type: str
@@ -121,11 +122,10 @@ def detect_evidence_gaps(
         gaps.append(
             EvidenceGap(
                 gap_id=f"GAP-{record.graph_id}",
+                incident_id=record.incident_id,
                 decision_id=record.decision_id,
                 evidence_id=record.source_node,
-                evidence_type=(
-                    "evidence"
-                ),
+                evidence_type="evidence",
                 target_hypothesis=target_hypothesis,
                 why_missing=(
                     record.rationale
