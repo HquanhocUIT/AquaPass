@@ -15,6 +15,34 @@ def _isoformat(value: datetime | None) -> str | None:
     return value.isoformat()
 
 
+def _service_request_status(request: EvidenceRequest) -> str:
+    return {
+        "draft": "draft",
+        "requested": "active",
+        "accepted": "active",
+        "collecting": "active",
+        "submitted": "active",
+        "verified": "active",
+        "ingested": "completed",
+        "decision_updated": "completed",
+        "rejected": "revoked",
+    }.get(request.status.value, "unknown")
+
+
+def _task_status(request: EvidenceRequest) -> str:
+    return {
+        "draft": "requested",
+        "requested": "requested",
+        "accepted": "accepted",
+        "collecting": "in-progress",
+        "submitted": "in-progress",
+        "verified": "in-progress",
+        "ingested": "completed",
+        "decision_updated": "completed",
+        "rejected": "cancelled",
+    }.get(request.status.value, "unknown")
+
+
 def evidence_request_to_fhir_service_request(
     request: EvidenceRequest,
 ) -> dict:
@@ -28,7 +56,7 @@ def evidence_request_to_fhir_service_request(
     return {
         "resourceType": "ServiceRequest",
         "id": request.request_id,
-        "status": "draft",
+        "status": _service_request_status(request),
         "intent": "order",
         "priority": request.priority,
         "code": {
@@ -77,7 +105,7 @@ def evidence_request_to_fhir_task(
     task: dict = {
         "resourceType": "Task",
         "id": f"TASK-{request.request_id}",
-        "status": "requested",
+        "status": _task_status(request),
         "intent": "order",
         "priority": request.priority,
         "focus": {

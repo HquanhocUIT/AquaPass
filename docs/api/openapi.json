@@ -1,6 +1,338 @@
 {
   "components": {
     "schemas": {
+      "ActorAssignmentRequest": {
+        "properties": {
+          "actors": {
+            "items": {
+              "$ref": "#/components/schemas/ActorCapacityRequest"
+            },
+            "minItems": 1,
+            "title": "Actors",
+            "type": "array"
+          },
+          "decision_deadline": {
+            "format": "date-time",
+            "title": "Decision Deadline",
+            "type": "string"
+          },
+          "evidence_id": {
+            "minLength": 1,
+            "title": "Evidence Id",
+            "type": "string"
+          },
+          "required_capability": {
+            "minLength": 1,
+            "title": "Required Capability",
+            "type": "string"
+          },
+          "required_location": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Required Location"
+          }
+        },
+        "required": [
+          "evidence_id",
+          "required_capability",
+          "decision_deadline",
+          "actors"
+        ],
+        "title": "ActorAssignmentRequest",
+        "type": "object"
+      },
+      "ActorAssignmentResponse": {
+        "properties": {
+          "actor_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Actor Id"
+          },
+          "actor_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Actor Name"
+          },
+          "evidence_id": {
+            "title": "Evidence Id",
+            "type": "string"
+          },
+          "expected_delay_minutes": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expected Delay Minutes"
+          },
+          "feasible": {
+            "title": "Feasible",
+            "type": "boolean"
+          },
+          "location": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Location"
+          },
+          "reasons": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Reasons",
+            "type": "array"
+          }
+        },
+        "required": [
+          "evidence_id",
+          "actor_id",
+          "actor_name",
+          "feasible",
+          "location",
+          "expected_delay_minutes",
+          "reasons"
+        ],
+        "title": "ActorAssignmentResponse",
+        "type": "object"
+      },
+      "ActorCapacityRequest": {
+        "properties": {
+          "actor_id": {
+            "minLength": 1,
+            "title": "Actor Id",
+            "type": "string"
+          },
+          "actor_name": {
+            "minLength": 1,
+            "title": "Actor Name",
+            "type": "string"
+          },
+          "actor_type": {
+            "minLength": 1,
+            "title": "Actor Type",
+            "type": "string"
+          },
+          "available_from": {
+            "format": "date-time",
+            "title": "Available From",
+            "type": "string"
+          },
+          "available_until": {
+            "format": "date-time",
+            "title": "Available Until",
+            "type": "string"
+          },
+          "capability": {
+            "minLength": 1,
+            "title": "Capability",
+            "type": "string"
+          },
+          "expected_delay_minutes": {
+            "minimum": 0.0,
+            "title": "Expected Delay Minutes",
+            "type": "integer"
+          },
+          "location": {
+            "minLength": 1,
+            "title": "Location",
+            "type": "string"
+          },
+          "max_concurrent_tasks": {
+            "minimum": 0.0,
+            "title": "Max Concurrent Tasks",
+            "type": "integer"
+          },
+          "status": {
+            "enum": [
+              "available",
+              "busy",
+              "full"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "actor_id",
+          "actor_name",
+          "actor_type",
+          "capability",
+          "location",
+          "status",
+          "available_from",
+          "available_until",
+          "max_concurrent_tasks",
+          "expected_delay_minutes"
+        ],
+        "title": "ActorCapacityRequest",
+        "type": "object"
+      },
+      "AuditEventResponse": {
+        "properties": {
+          "actor_name": {
+            "title": "Actor Name",
+            "type": "string"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "entity_id": {
+            "format": "uuid",
+            "title": "Entity Id",
+            "type": "string"
+          },
+          "entity_type": {
+            "title": "Entity Type",
+            "type": "string"
+          },
+          "event_type": {
+            "title": "Event Type",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "incident_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Incident Id"
+          },
+          "payload": {
+            "additionalProperties": true,
+            "title": "Payload",
+            "type": "object"
+          }
+        },
+        "required": [
+          "id",
+          "incident_id",
+          "entity_type",
+          "entity_id",
+          "event_type",
+          "actor_name",
+          "payload",
+          "created_at"
+        ],
+        "title": "AuditEventResponse",
+        "type": "object"
+      },
+      "DecisionApprovalRequest": {
+        "properties": {
+          "action": {
+            "enum": [
+              "APPROVE",
+              "REJECT"
+            ],
+            "title": "Action",
+            "type": "string"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          },
+          "reviewer_id": {
+            "maxLength": 120,
+            "minLength": 1,
+            "title": "Reviewer Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "action",
+          "reviewer_id"
+        ],
+        "title": "DecisionApprovalRequest",
+        "type": "object"
+      },
+      "DecisionApprovalResponse": {
+        "properties": {
+          "decision_id": {
+            "format": "uuid",
+            "title": "Decision Id",
+            "type": "string"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          },
+          "reviewer_id": {
+            "title": "Reviewer Id",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "APPROVED",
+              "REJECTED"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "version_number": {
+            "title": "Version Number",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "decision_id",
+          "version_number",
+          "status",
+          "reviewer_id",
+          "reason"
+        ],
+        "title": "DecisionApprovalResponse",
+        "type": "object"
+      },
       "DecisionComparisonResponse": {
         "properties": {
           "decision_id": {
@@ -525,6 +857,238 @@
         "title": "EvidenceGraphRecordRequest",
         "type": "object"
       },
+      "EvidenceRequestCreateRequest": {
+        "properties": {
+          "assigned_actor_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Assigned Actor Id"
+          },
+          "decision_id": {
+            "format": "uuid",
+            "title": "Decision Id",
+            "type": "string"
+          },
+          "estimated_cost": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Estimated Cost"
+          },
+          "estimated_minutes": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Estimated Minutes"
+          },
+          "evidence_gap_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Evidence Gap Id"
+          },
+          "incident_id": {
+            "format": "uuid",
+            "title": "Incident Id",
+            "type": "string"
+          },
+          "priority": {
+            "default": "ROUTINE",
+            "enum": [
+              "ROUTINE",
+              "URGENT",
+              "ASAP",
+              "STAT"
+            ],
+            "title": "Priority",
+            "type": "string"
+          },
+          "purpose": {
+            "minLength": 1,
+            "title": "Purpose",
+            "type": "string"
+          },
+          "requested_by": {
+            "default": "system",
+            "maxLength": 120,
+            "minLength": 1,
+            "title": "Requested By",
+            "type": "string"
+          },
+          "requested_evidence_code": {
+            "maxLength": 80,
+            "minLength": 1,
+            "title": "Requested Evidence Code",
+            "type": "string"
+          }
+        },
+        "required": [
+          "incident_id",
+          "decision_id",
+          "requested_evidence_code",
+          "purpose"
+        ],
+        "title": "EvidenceRequestCreateRequest",
+        "type": "object"
+      },
+      "EvidenceRequestResponse": {
+        "properties": {
+          "assigned_actor_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Assigned Actor Id"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "decision_id": {
+            "format": "uuid",
+            "title": "Decision Id",
+            "type": "string"
+          },
+          "estimated_cost": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Estimated Cost"
+          },
+          "estimated_minutes": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Estimated Minutes"
+          },
+          "evidence_gap_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Evidence Gap Id"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "incident_id": {
+            "format": "uuid",
+            "title": "Incident Id",
+            "type": "string"
+          },
+          "priority": {
+            "title": "Priority",
+            "type": "string"
+          },
+          "purpose": {
+            "title": "Purpose",
+            "type": "string"
+          },
+          "requested_by": {
+            "title": "Requested By",
+            "type": "string"
+          },
+          "requested_evidence_code": {
+            "title": "Requested Evidence Code",
+            "type": "string"
+          },
+          "result_evidence_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Result Evidence Id"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "status_events": {
+            "items": {
+              "$ref": "#/components/schemas/RequestStatusEventResponse"
+            },
+            "title": "Status Events",
+            "type": "array"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "title": "Updated At",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "incident_id",
+          "decision_id",
+          "evidence_gap_id",
+          "assigned_actor_id",
+          "result_evidence_id",
+          "requested_evidence_code",
+          "purpose",
+          "priority",
+          "status",
+          "estimated_cost",
+          "estimated_minutes",
+          "requested_by",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "EvidenceRequestResponse",
+        "type": "object"
+      },
       "EvidenceResponse": {
         "properties": {
           "code": {
@@ -903,6 +1467,150 @@
         "title": "IncidentResponse",
         "type": "object"
       },
+      "IntelligenceOverviewRequest": {
+        "properties": {
+          "candidates": {
+            "items": {
+              "$ref": "#/components/schemas/EvidenceCandidateRequest"
+            },
+            "minItems": 1,
+            "title": "Candidates",
+            "type": "array"
+          },
+          "records": {
+            "items": {
+              "$ref": "#/components/schemas/EvidenceGraphRecordRequest"
+            },
+            "minItems": 1,
+            "title": "Records",
+            "type": "array"
+          }
+        },
+        "required": [
+          "records",
+          "candidates"
+        ],
+        "title": "IntelligenceOverviewRequest",
+        "type": "object"
+      },
+      "IntelligenceOverviewResponse": {
+        "properties": {
+          "gaps": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Gaps",
+            "type": "array"
+          },
+          "graph": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Graph",
+            "type": "array"
+          },
+          "ranking": {
+            "$ref": "#/components/schemas/RankEvidenceResponse"
+          },
+          "states": {
+            "items": {
+              "$ref": "#/components/schemas/IntelligenceStateResponse"
+            },
+            "title": "States",
+            "type": "array"
+          }
+        },
+        "required": [
+          "graph",
+          "states",
+          "gaps",
+          "ranking"
+        ],
+        "title": "IntelligenceOverviewResponse",
+        "type": "object"
+      },
+      "IntelligenceStateResponse": {
+        "properties": {
+          "evidence_id": {
+            "title": "Evidence Id",
+            "type": "string"
+          },
+          "reason": {
+            "title": "Reason",
+            "type": "string"
+          },
+          "state": {
+            "title": "State",
+            "type": "string"
+          }
+        },
+        "required": [
+          "evidence_id",
+          "state",
+          "reason"
+        ],
+        "title": "IntelligenceStateResponse",
+        "type": "object"
+      },
+      "ObservationIngestResponse": {
+        "properties": {
+          "decision_id": {
+            "format": "uuid",
+            "title": "Decision Id",
+            "type": "string"
+          },
+          "decision_version": {
+            "title": "Decision Version",
+            "type": "integer"
+          },
+          "evidence_id": {
+            "format": "uuid",
+            "title": "Evidence Id",
+            "type": "string"
+          },
+          "incident_id": {
+            "format": "uuid",
+            "title": "Incident Id",
+            "type": "string"
+          },
+          "observation_id": {
+            "title": "Observation Id",
+            "type": "string"
+          },
+          "request_id": {
+            "format": "uuid",
+            "title": "Request Id",
+            "type": "string"
+          },
+          "request_status": {
+            "title": "Request Status",
+            "type": "string"
+          },
+          "uncertainty_level": {
+            "title": "Uncertainty Level",
+            "type": "string"
+          },
+          "value": {
+            "title": "Value",
+            "type": "string"
+          }
+        },
+        "required": [
+          "observation_id",
+          "evidence_id",
+          "incident_id",
+          "request_id",
+          "decision_id",
+          "request_status",
+          "decision_version",
+          "uncertainty_level",
+          "value"
+        ],
+        "title": "ObservationIngestResponse",
+        "type": "object"
+      },
       "RankEvidenceRequest": {
         "properties": {
           "candidates": {
@@ -1013,6 +1721,108 @@
           "selected"
         ],
         "title": "RankedEvidenceResponse",
+        "type": "object"
+      },
+      "RequestStatusEventResponse": {
+        "properties": {
+          "actor_name": {
+            "title": "Actor Name",
+            "type": "string"
+          },
+          "from_status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "From Status"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          },
+          "occurred_at": {
+            "format": "date-time",
+            "title": "Occurred At",
+            "type": "string"
+          },
+          "request_id": {
+            "format": "uuid",
+            "title": "Request Id",
+            "type": "string"
+          },
+          "to_status": {
+            "title": "To Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "request_id",
+          "from_status",
+          "to_status",
+          "actor_name",
+          "note",
+          "occurred_at"
+        ],
+        "title": "RequestStatusEventResponse",
+        "type": "object"
+      },
+      "RequestStatusTransitionRequest": {
+        "properties": {
+          "actor_name": {
+            "maxLength": 120,
+            "minLength": 1,
+            "title": "Actor Name",
+            "type": "string"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          },
+          "to_status": {
+            "enum": [
+              "DRAFT",
+              "REQUESTED",
+              "ACCEPTED",
+              "COLLECTING",
+              "SUBMITTED",
+              "VERIFIED",
+              "INGESTED",
+              "DECISION_UPDATED",
+              "REJECTED"
+            ],
+            "title": "To Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "to_status",
+          "actor_name"
+        ],
+        "title": "RequestStatusTransitionRequest",
         "type": "object"
       },
       "ValidationError": {
@@ -1252,6 +2062,59 @@
         ]
       }
     },
+    "/api/decisions/{decision_id}/approval": {
+      "post": {
+        "operationId": "approve_decision_version_api_decisions__decision_id__approval_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "decision_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Decision Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DecisionApprovalRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DecisionApprovalResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Approve Decision Version",
+        "tags": [
+          "workflow"
+        ]
+      }
+    },
     "/api/decisions/{decision_id}/comparison": {
       "get": {
         "operationId": "compare_latest_decisions_api_decisions__decision_id__comparison_get",
@@ -1335,6 +2198,95 @@
         ]
       }
     },
+    "/api/incidents/{incident_id}/audit": {
+      "get": {
+        "operationId": "get_incident_audit_api_incidents__incident_id__audit_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "incident_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Incident Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/AuditEventResponse"
+                  },
+                  "title": "Response Get Incident Audit Api Incidents  Incident Id  Audit Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Incident Audit",
+        "tags": [
+          "workflow"
+        ]
+      }
+    },
+    "/api/intelligence/overview": {
+      "post": {
+        "description": "Return graph, state, gap and ranking data in one frontend call.\n\nSang's deterministic graph and ranking modules remain the source of truth;\nthis route only composes their existing contracts for the decision workspace.",
+        "operationId": "intelligence_overview_api_intelligence_overview_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IntelligenceOverviewRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IntelligenceOverviewResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Intelligence Overview",
+        "tags": [
+          "intelligence"
+        ]
+      }
+    },
     "/api/ranking/evidence": {
       "post": {
         "operationId": "rank_evidence_candidates_api_ranking_evidence_post",
@@ -1373,6 +2325,286 @@
         "summary": "Rank Evidence Candidates",
         "tags": [
           "ranking"
+        ]
+      }
+    },
+    "/api/requests": {
+      "post": {
+        "description": "Create a draft request linked to one incident and decision.",
+        "operationId": "create_request_api_requests_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EvidenceRequestCreateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EvidenceRequestResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Create Request",
+        "tags": [
+          "workflow"
+        ]
+      }
+    },
+    "/api/requests/assign": {
+      "post": {
+        "operationId": "assign_actor_api_requests_assign_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ActorAssignmentRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ActorAssignmentResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Assign Actor",
+        "tags": [
+          "workflow"
+        ]
+      }
+    },
+    "/api/requests/{request_id}": {
+      "get": {
+        "operationId": "get_request_api_requests__request_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "request_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Request Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EvidenceRequestResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Request",
+        "tags": [
+          "workflow"
+        ]
+      }
+    },
+    "/api/requests/{request_id}/fhir": {
+      "get": {
+        "operationId": "get_fhir_request_api_requests__request_id__fhir_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "request_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Request Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Get Fhir Request Api Requests  Request Id  Fhir Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Fhir Request",
+        "tags": [
+          "workflow"
+        ]
+      }
+    },
+    "/api/requests/{request_id}/observation": {
+      "post": {
+        "description": "Attach a validated FHIR Observation to the request's original incident.",
+        "operationId": "ingest_observation_api_requests__request_id__observation_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "request_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Request Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": true,
+                "title": "Observation",
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObservationIngestResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Ingest Observation",
+        "tags": [
+          "workflow"
+        ]
+      }
+    },
+    "/api/requests/{request_id}/transitions": {
+      "post": {
+        "operationId": "transition_request_api_requests__request_id__transitions_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "request_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Request Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequestStatusTransitionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EvidenceRequestResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Transition Request",
+        "tags": [
+          "workflow"
         ]
       }
     },
@@ -1422,7 +2654,8 @@
     },
     "/health": {
       "get": {
-        "operationId": "health_check_health_get",
+        "description": "Liveness endpoint that does not depend on external infrastructure.",
+        "operationId": "health_health_get",
         "responses": {
           "200": {
             "content": {
@@ -1431,7 +2664,7 @@
                   "additionalProperties": {
                     "type": "string"
                   },
-                  "title": "Response Health Check Health Get",
+                  "title": "Response Health Health Get",
                   "type": "object"
                 }
               }
@@ -1439,7 +2672,36 @@
             "description": "Successful Response"
           }
         },
-        "summary": "Health Check"
+        "summary": "Health",
+        "tags": [
+          "system"
+        ]
+      }
+    },
+    "/health/readiness": {
+      "get": {
+        "description": "Return 200 only when the configured database answers a read-only query.",
+        "operationId": "readiness_health_readiness_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "title": "Response Readiness Health Readiness Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Readiness",
+        "tags": [
+          "system"
+        ]
       }
     },
     "/incidents": {

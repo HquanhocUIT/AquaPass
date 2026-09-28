@@ -14,6 +14,7 @@ class EvidenceRequestStatus(str, Enum):
     VERIFIED = "verified"
     INGESTED = "ingested"
     DECISION_UPDATED = "decision_updated"
+    REJECTED = "rejected"
 
 
 @dataclass(frozen=True)
@@ -172,6 +173,54 @@ def transition_evidence_request(
         expected_cost=request.expected_cost,
         expected_time_minutes=request.expected_time_minutes,
         status=next_status,
+        assigned_actor_id=request.assigned_actor_id,
+        created_at=request.created_at,
+        transition_history=(
+            *request.transition_history,
+            transition,
+        ),
+    )
+
+
+def reject_evidence_request(
+    request: EvidenceRequest,
+) -> EvidenceRequest:
+    """Reject a request before collection starts.
+
+    Rejection is intentionally separate from the linear happy-path
+    transitions. A human may reject a draft or an unaccepted request, but a
+    request that already produced a result cannot be silently rejected.
+    """
+
+    _validate_request(request)
+
+    if request.status not in {
+        EvidenceRequestStatus.DRAFT,
+        EvidenceRequestStatus.REQUESTED,
+        EvidenceRequestStatus.ACCEPTED,
+    }:
+        raise ValueError(
+            "Evidence request can only be rejected before collection starts."
+        )
+
+    transition = EvidenceRequestTransition(
+        from_status=request.status,
+        to_status=EvidenceRequestStatus.REJECTED,
+        transitioned_at=datetime.now(),
+    )
+
+    return EvidenceRequest(
+        request_id=request.request_id,
+        incident_id=request.incident_id,
+        decision_id=request.decision_id,
+        evidence_id=request.evidence_id,
+        evidence_type=request.evidence_type,
+        purpose=request.purpose,
+        priority=request.priority,
+        decision_value=request.decision_value,
+        expected_cost=request.expected_cost,
+        expected_time_minutes=request.expected_time_minutes,
+        status=EvidenceRequestStatus.REJECTED,
         assigned_actor_id=request.assigned_actor_id,
         created_at=request.created_at,
         transition_history=(

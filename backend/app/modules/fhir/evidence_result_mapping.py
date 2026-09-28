@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime
+from math import isfinite
 
 from app.modules.orchestration.evidence_result import (
     EvidenceResult,
@@ -45,7 +46,17 @@ def fhir_observation_to_evidence_result(
     value_quantity = observation.get("valueQuantity")
 
     if value_quantity is not None:
-        value = str(value_quantity.get("value"))
+        raw_value = value_quantity.get("value")
+        if (
+            not isinstance(raw_value, (int, float))
+            or isinstance(raw_value, bool)
+            or not isfinite(float(raw_value))
+        ):
+            raise ValueError(
+                "FHIR Observation valueQuantity.value must be a finite number"
+            )
+
+        value = str(raw_value)
 
         unit = value_quantity.get("unit")
 
@@ -75,19 +86,27 @@ def fhir_observation_to_evidence_result(
         or observation.get("issued")
     )
 
-    if not effective_at:
+    if not isinstance(effective_at, str) or not effective_at:
         raise ValueError(
             "FHIR Observation must contain "
             "effectiveDateTime or issued"
         )
 
-    reliability = observation.get(
-        "extension",
-        [{}],
-    )[0].get(
-        "valueDecimal",
-        1.0,
-    )
+    reliability = 1.0
+    for extension in observation.get("extension") or []:
+        if isinstance(extension, dict) and "valueDecimal" in extension:
+            reliability = extension["valueDecimal"]
+            break
+
+    if (
+        not isinstance(reliability, (int, float))
+        or isinstance(reliability, bool)
+        or not isfinite(float(reliability))
+        or not 0.0 <= float(reliability) <= 1.0
+    ):
+        raise ValueError(
+            "FHIR Observation reliability must be between 0.0 and 1.0"
+        )
 
     return EvidenceResult(
         result_id=f"RESULT-{observation_id}",
