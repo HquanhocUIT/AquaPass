@@ -6,13 +6,21 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
 from app.db.session import get_db
-
-
 router = APIRouter(tags=["system"])
 
 
 @router.get("/health")
-def health(db: Session = Depends(get_db)) -> dict[str, str]:
+def health() -> dict[str, str]:
+    """Liveness endpoint that does not depend on external infrastructure."""
+    return {
+        "status": "ok",
+        "service": "aquapass-api",
+        "database": "reachable",
+    }
+
+
+@router.get("/health/readiness")
+def readiness(db: Session = Depends(get_db)) -> dict[str, str]:
     """Return 200 only when the configured database answers a read-only query."""
     try:
         db.execute(text("SELECT 1"))

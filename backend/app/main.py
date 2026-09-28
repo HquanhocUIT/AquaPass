@@ -4,6 +4,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.api.routes.ranking import router as ranking_router
 from app.api.routes.decision import router as decision_router
 from app.api.routes.evidence import router as evidence_router
+from app.api.routes.intelligence import router as intelligence_router
+from app.api.routes.workflow import router as workflow_router
 
 from app.api.routes.decision_create import router as decision_create_router
 from app.api.routes.decision_read import router as decision_read_router
@@ -35,6 +37,8 @@ app.add_middleware(
 app.include_router(evidence_router)
 app.include_router(ranking_router)
 app.include_router(decision_router)
+app.include_router(intelligence_router)
+app.include_router(workflow_router)
 
 # Upstream foundation routes
 app.include_router(incident_read_router)
@@ -51,13 +55,4 @@ def root() -> dict[str, str]:
         "service": settings.app_name,
         "docs": "/docs",
         "incident_example": "/incidents/8f03fdce-cc4e-4fc1-a90b-15b2122e68b8",
-    }
-
-
-@app.get("/health")
-def health_check() -> dict[str, str]:
-    return {
-        "status": "ok",
-        "service": "aquapass-api",
-        "database": "reachable",
     }
