@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import {
   ArrowRight,
   ArrowUpRight,
@@ -30,61 +31,6 @@ const projectSteps = [
   },
 ];
 
-function EarthIllustration() {
-  return (
-    <svg
-      className="earth-illustration"
-      viewBox="0 0 600 600"
-      role="img"
-      aria-labelledby="earth-title earth-description"
-    >
-      <title id="earth-title">Illustrated view of Earth focused on water and connected ecosystems</title>
-      <desc id="earth-description">
-        A calm blue globe with mapped continents, latitude lines and a field observation marker.
-      </desc>
-      <defs>
-        <linearGradient id="ocean" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stopColor="#d9f0eb" />
-          <stop offset="0.56" stopColor="#9dcfd0" />
-          <stop offset="1" stopColor="#72acb2" />
-        </linearGradient>
-        <linearGradient id="globe-shadow" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stopColor="#ffffff" stopOpacity="0.5" />
-          <stop offset="1" stopColor="#254f68" stopOpacity="0.2" />
-        </linearGradient>
-        <clipPath id="globe-clip">
-          <circle cx="300" cy="300" r="216" />
-        </clipPath>
-      </defs>
-      <circle cx="300" cy="300" r="232" fill="#ffffff" opacity="0.55" />
-      <circle cx="300" cy="300" r="216" fill="url(#ocean)" />
-      <g clipPath="url(#globe-clip)">
-        <g fill="none" stroke="#f5ffff" strokeOpacity="0.53" strokeWidth="1.3">
-          <ellipse cx="300" cy="300" rx="104" ry="216" />
-          <ellipse cx="300" cy="300" rx="176" ry="216" />
-          <ellipse cx="300" cy="300" rx="216" ry="68" />
-          <ellipse cx="300" cy="300" rx="216" ry="142" />
-          <path d="M84 300h432M105 216h390M105 384h390" />
-        </g>
-        <g fill="#d6e7d2" stroke="#f4f7e9" strokeLinejoin="round" strokeWidth="2">
-          <path d="m114 179 22-22 39-8 23 14 4 18-20 12-13 24-29 4-19-18-19-3z" />
-          <path d="m193 215 24 4 17 20-8 24 13 21-7 31-17 21-9 41-17 29-14-26 5-39-14-26 5-35-10-21 15-22z" />
-          <path d="m259 164 24-19 36 5 18 18 29-2 19 16 31-7 26 14 5 19-21 15-27-7-11 20-31-3-19 22-22-8-20 12-18-18-25-1-10-24-22-12 4-22-15-12z" />
-          <path d="m337 264 29 7 21 21-8 22 13 25-10 36-20 27-8 35-19 10-18-24 2-27-12-23 12-34-7-27z" />
-          <path d="m443 361 28 8 21 20-12 21-28-4-18-17z" />
-          <path d="m152 130 16-8 11 8-7 13-18 2zM425 151l18-5 15 9-3 12-20 4-15-9z" />
-        </g>
-        <circle cx="300" cy="300" r="216" fill="url(#globe-shadow)" />
-        <path d="M107 221c49-79 126-123 211-134" fill="none" stroke="#ffffff" strokeOpacity="0.72" strokeWidth="9" strokeLinecap="round" />
-      </g>
-      <circle cx="421" cy="259" r="17" fill="#f9f7e9" opacity="0.92" />
-      <circle cx="421" cy="259" r="8" fill="#c46e4c" />
-      <circle cx="421" cy="259" r="25" fill="none" stroke="#fbfaf2" strokeOpacity="0.78" strokeWidth="1.5" />
-      <path d="M441 247c23-17 44-22 64-20" fill="none" stroke="#a85a40" strokeWidth="1.5" strokeDasharray="3 5" />
-    </svg>
-  );
-}
-
 export default function HomePage() {
   return (
     <main className="intro-page">
@@ -96,7 +42,7 @@ export default function HomePage() {
           <span className="intro-brand-mark">
             <Drop size={19} weight="fill" aria-hidden="true" />
           </span>
-          <span className="intro-brand-name">AquaPass</span>
+          <span className="intro-brand-name"><span>Aqua</span><span>Pass</span></span>
         </Link>
         <nav className="intro-nav" aria-label="Main navigation">
           <a href="#project">The project</a>
@@ -132,11 +78,21 @@ export default function HomePage() {
           </div>
         </div>
 
-        <div className="earth-stage" aria-label="AquaPass field research illustration">
+        <div className="earth-stage">
           <div className="earth-orbit earth-orbit-one" aria-hidden="true" />
           <div className="earth-orbit earth-orbit-two" aria-hidden="true" />
-          <span className="earth-stage-index">FIELD ATLAS <span>·</span> 01</span>
-          <EarthIllustration />
+          <span className="earth-stage-index">ONE HEALTH <span>·</span> A SHARED PLANET</span>
+          <div className="earth-photo-frame">
+            <Image
+              className="earth-photo"
+              src="/images/earth-apollo-17.jpg"
+              alt="Earth photographed by the Apollo 17 crew, with Africa, clouds and Antarctica visible"
+              width={1024}
+              height={1024}
+              sizes="(max-width: 740px) 90vw, 500px"
+              priority
+            />
+          </div>
 
           <aside className="field-note field-note-top">
             <span className="note-label">FIELD NOTE / 01</span>
@@ -147,13 +103,15 @@ export default function HomePage() {
 
           <aside className="field-note field-note-pin">
             <span className="pin-dot" aria-hidden="true" />
-            <span className="note-label">OBSERVATION SITE</span>
-            <strong>One watershed</strong>
-            <small>Many signals · shared response</small>
+            <span className="note-label">ONE HEALTH VIEW</span>
+            <strong>One connected system</strong>
+            <small>Water · people · ecosystems</small>
           </aside>
 
-          <div className="earth-caption"><span>01</span> A living system, seen from many sides</div>
-          <div className="earth-coordinates">10°46′37″N<br />106°42′03″E</div>
+          <div className="earth-caption">A living system, seen from many sides</div>
+          <a className="earth-photo-credit" href="https://svs.gsfc.nasa.gov/30613/">
+            Photo: NASA / Apollo 17 <ArrowUpRight size={12} aria-hidden="true" />
+          </a>
         </div>
       </section>
 

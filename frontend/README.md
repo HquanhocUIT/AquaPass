@@ -13,6 +13,10 @@ ranked profiles and audit history from the backend. Request transitions,
 Observation ingestion and approval write to the database. API failures are
 shown directly; the interface does not replace them with local sample state.
 
+The `/` page introduces AquaPass and links into the cases workspace. Its Earth
+photograph is the Apollo 17 Blue Marble image, courtesy of NASA's Earth Science
+and Remote Sensing Unit. [Source and credits](https://svs.gsfc.nasa.gov/30613/).
+
 Candidate parameters in `data/demo/candidate_evidence.csv` are prototype
 assumptions for the simulated scenario. Scores use the documented deterministic
 weights and are not presented as calibrated probabilities or real field data.
