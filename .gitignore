@@ -9,6 +9,7 @@ dist/
 build/
 __pycache__/
 *.pyc
+*.tsbuildinfo
 
 # Local configuration
 .env

@@ -12,6 +12,7 @@ from sqlalchemy import (
     ForeignKey,
     ForeignKeyConstraint,
     Integer,
+    LargeBinary,
     MetaData,
     String,
     Table,
@@ -181,6 +182,25 @@ evidence_requests = Table(
         ["public.evidence.id", "public.evidence.incident_id"],
         name="evidence_requests_result_incident_fk",
     ),
+    schema="public",
+)
+
+request_attachments = Table(
+    "evidence_request_attachments",
+    metadata,
+    Column("id", Uuid(as_uuid=True), primary_key=True),
+    Column(
+        "request_id",
+        Uuid(as_uuid=True),
+        ForeignKey("public.evidence_requests.id", ondelete="CASCADE"),
+        nullable=False,
+    ),
+    Column("filename", String(255), nullable=False),
+    Column("content_type", String(120), nullable=False),
+    Column("size_bytes", Integer, nullable=False),
+    Column("sha256", String(64), nullable=False),
+    Column("data", LargeBinary, nullable=False),
+    Column("created_at", DateTime(timezone=True), nullable=False, server_default=func.now()),
     schema="public",
 )
 

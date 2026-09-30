@@ -3,15 +3,45 @@
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.db.session import get_db
 from app.db.tables import decisions, evidence, incidents
-from app.schemas.incident_read import IncidentDetailResponse
+from app.schemas.incident_read import IncidentDetailResponse, IncidentListItemResponse
 
 
 router = APIRouter(prefix="/incidents", tags=["incidents"])
+
+
+@router.get("", response_model=list[IncidentListItemResponse])
+def list_incidents(db: Session = Depends(get_db)) -> list[dict]:
+    """Return the most recently updated incidents for the workspace index."""
+    evidence_count = (
+        select(func.count(evidence.c.id))
+        .where(evidence.c.incident_id == incidents.c.id)
+        .correlate(incidents)
+        .scalar_subquery()
+    )
+    pending_count = (
+        select(func.count(decisions.c.id))
+        .where(
+            decisions.c.incident_id == incidents.c.id,
+            decisions.c.status == "PENDING",
+        )
+        .correlate(incidents)
+        .scalar_subquery()
+    )
+    rows = db.execute(
+        select(
+            *incidents.c,
+            evidence_count.label("evidence_count"),
+            pending_count.label("pending_decision_count"),
+        )
+        .order_by(incidents.c.updated_at.desc(), incidents.c.id)
+        .limit(100)
+    ).mappings().all()
+    return [dict(row) for row in rows]
 
 
 @router.get("/{incident_id}", response_model=IncidentDetailResponse)

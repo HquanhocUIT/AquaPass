@@ -16,10 +16,20 @@ These **simulated examples** illustrate an exchange boundary, not a live FHIR en
 | `evidence.value_numeric` + `unit` | `Observation.valueQuantity` | Unit uses UCUM `mg/L` in this demo. Text evidence would use `valueString` instead. |
 | `evidence.observed_at` | `Observation.effectiveDateTime` | Timestamp with timezone. |
 | `evidence.source` + `provenance` | `Observation.method`, `performer`, `Provenance` (future) | Preserve source/method in AquaPass even if only a subset crosses this sample boundary. |
+| `evidence.reliability_score` | AquaPass `reliability` extension (`valueDecimal`) | Prototype input supplied by the operator; it is not produced by FHIR R4 itself. |
+| `evidence.is_simulated` | `Observation.meta.tag` with AquaPass code `simulated` | The local demonstration form tags sample inputs as simulated by default. Removing the tag marks the submitted source record as non-simulated; it does not verify the collector or the measurement. |
+| Human hypothesis interpretation | AquaPass `hypothesis-impact` extension with `hypothesisCode`, `direction` and `rationale` | Optional. The operator must explicitly record `supports`, `corroborates` or `contradicts` and explain why. AquaPass persists the interpretation and audit event; it does not infer causality. |
 | Monitoring site | `Location` referenced by `ServiceRequest.subject`, `Task.for`, `Observation.subject` | R4 permits Location as the subject of these environmental observations; no fictitious Patient is created. |
 
 The files in [`examples/`](examples/) are a linked snapshot of **one hypothetical request**, not rows already inserted by `seed.sql`. The seed intentionally stops before request creation so the demo can show a human confirmation. Example references resolve within this folder: ServiceRequest → Location; Task → ServiceRequest, Location, Organization, Observation; Observation → ServiceRequest, Location. FHIR `Observation.status = final` means the *measurement result* is final, not that AquaPass's decision is approved.
 
 `https://aquapass.example.org/...` is a documentation-only namespace and not a published terminology server. This sample does not assert conformance to a custom OAH profile or real-world ecological validity. Human review, permissions, standard terminology and full profile validation remain separate integration work.
+
+The `https://aquapass.example/fhir/StructureDefinition/hypothesis-impact`
+extension is a local prototype contract, not a published StructureDefinition.
+If present, it must contain one `hypothesisCode`, one `direction`, and a
+non-empty `rationale`; the code must refer to an active hypothesis on the
+request's incident. The decision support score change is a fixed prototype
+step of `0.10`, bounded to `0..1`, and remains subject to human decision review.
 
 To repeat the base R4 structural validation, install `backend/requirements.txt`, then run `python scripts/validate_fhir_examples.py` from `backend/`. The script downloads HL7's [FHIR R4 JSON Schema](https://www.hl7.org/fhir/R4/downloads.html), verifies its SHA-256 and checks every example plus local references. Use `--schema-zip PATH` to validate offline with a copy of the official archive. JSON Schema alone does not verify terminology bindings, external references, profile rules or OAH-IG conformance.

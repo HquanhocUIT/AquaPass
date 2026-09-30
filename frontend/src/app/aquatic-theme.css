@@ -1,0 +1,432 @@
+:root {
+  --black: #1d3153;
+  --charcoal: #2c4485;
+  --blue: #2c4485;
+  --blue-hover: #213568;
+  --blue-tint: #e9f6f7;
+  --canvas: #f3f8f8;
+  --white: #ffffff;
+  --text: #26374b;
+  --secondary: #4e6376;
+  --muted: #657b8b;
+  --border: #d8e5e8;
+  --border-strong: #adc4ca;
+  --green: #317883;
+  --green-soft: #e3f3f0;
+  --amber: #805117;
+  --amber-soft: #fff5df;
+  --red: #a9343d;
+  --red-soft: #fff0f0;
+  --aqua: #6dc5d3;
+}
+
+body {
+  background: var(--canvas);
+  color: var(--text);
+}
+
+.sidebar {
+  background: #ffffff;
+  border-right-color: #d8e5e8;
+  box-shadow: 1px 0 0 rgba(31, 64, 88, 0.025);
+}
+
+.brand {
+  color: #2c4485;
+  border-bottom-color: #e3edef;
+}
+
+.brand-name {
+  display: flex;
+  gap: 0;
+}
+
+.brand-name span:first-child {
+  color: #2c4485;
+}
+
+.brand-name span:last-child {
+  color: #4aaabd;
+}
+
+.logo-mark {
+  color: #25406f;
+  background: #dff4f3;
+  border-radius: 10px;
+}
+
+.nav-caption,
+.nav-group {
+  color: #67818f;
+}
+
+.nav-item {
+  color: #3e5366;
+  border-left-color: transparent;
+  border-radius: 6px;
+}
+
+.nav-item:hover {
+  color: #2c4485;
+  background: #f0f7f8;
+}
+
+.nav-item-active,
+.nav-item-active:hover {
+  color: #2c4485;
+  background: #d3edf0;
+  border-left-color: var(--aqua);
+}
+
+.nav-item svg {
+  color: #698596;
+}
+
+.nav-item-active svg {
+  color: #2c4485;
+}
+
+.sidebar-bottom {
+  border-top-color: #d8e5e8;
+}
+
+.sidebar-bottom span {
+  color: #67818f;
+}
+
+.sidebar-bottom strong {
+  color: #2c4485;
+}
+
+.topbar {
+  border-bottom-color: var(--border);
+  box-shadow: 0 1px 0 rgba(31, 64, 88, 0.025);
+}
+
+.workspace {
+  background-image: radial-gradient(ellipse at 96% 0%, rgba(109, 197, 211, 0.13), transparent 40%);
+  background-repeat: no-repeat;
+  background-size: 700px 330px;
+}
+
+.case-heading h1,
+.index-heading h1 {
+  color: #203962;
+}
+
+.case-heading {
+  padding-left: 17px;
+  border-left: 3px solid var(--aqua);
+}
+
+.overline,
+.eyebrow {
+  color: #317883;
+}
+
+.case-heading .priority {
+  color: #9d573d;
+}
+
+.deadline-box {
+  background: linear-gradient(145deg, #2c4485, #203765);
+  border-top-color: var(--aqua);
+  border-radius: 8px;
+}
+
+.panel,
+.rail-card,
+.workflow-panel,
+.decision-focus,
+.index-stats {
+  overflow: hidden;
+  border-radius: 10px;
+  box-shadow: 0 2px 12px rgba(34, 67, 89, 0.045);
+}
+
+.case-icon {
+  border-radius: 9px;
+}
+
+.case-row:hover,
+.candidate-top,
+.method-details summary:hover {
+  background-color: #eef8f8;
+}
+
+.candidate-top {
+  border-left-color: var(--aqua);
+}
+
+.recommended {
+  color: #245e71;
+  background: #e1f3f4;
+}
+
+.mini-stats,
+.table-head,
+.approval-section,
+.field-result-form {
+  background: #f5f9f9;
+}
+
+.primary-button {
+  border-radius: 6px;
+}
+
+.secondary-button {
+  border-color: var(--border-strong);
+  border-radius: 6px;
+}
+
+.field input,
+.field select,
+.field textarea {
+  border-color: var(--border-strong);
+  border-radius: 6px;
+}
+
+.field input:focus-visible,
+.field select:focus-visible,
+.field textarea:focus-visible,
+button:focus-visible,
+a:focus-visible,
+summary:focus-visible {
+  outline: 3px solid rgba(44, 68, 133, 0.38);
+  outline-offset: 2px;
+}
+
+.status {
+  border-radius: 3px;
+}
+
+.request-attachments {
+  margin: 16px 0 18px;
+  padding: 16px;
+  background: #f7fbfb;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.request-attachments-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.request-attachments-heading h4 {
+  margin: 0;
+  color: var(--black);
+  font-size: 13px;
+}
+
+.request-attachments-heading > span {
+  min-width: 24px;
+  padding: 3px 7px;
+  color: #245e71;
+  background: #e1f3f4;
+  border-radius: 12px;
+  font-size: 11px;
+  text-align: center;
+}
+
+.request-attachment-list,
+.attachment-pending-list {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.request-attachment-list {
+  margin-bottom: 12px;
+}
+
+.request-attachment-list li,
+.attachment-pending-list li {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 10px;
+  color: #317883;
+  background: #ffffff;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+.request-attachment-list a {
+  min-width: 0;
+  flex: 1;
+  overflow: hidden;
+  color: var(--blue);
+  font-size: 12px;
+  font-weight: 650;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.request-attachment-list li > span {
+  color: var(--muted);
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.attachment-field {
+  display: grid;
+  gap: 8px;
+}
+
+.attachment-dropzone {
+  position: relative;
+  padding: 13px;
+  background: #fbfefe;
+  border: 1px dashed #8ebdc5;
+  border-radius: 8px;
+  transition: background 150ms ease, border-color 150ms ease;
+}
+
+.attachment-dropzone:hover,
+.attachment-dropzone-active,
+.attachment-dropzone:focus-within {
+  background: #edf8f8;
+  border-color: #317883;
+}
+
+.attachment-dropzone label {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  cursor: pointer;
+}
+
+.attachment-upload-icon {
+  width: 36px;
+  height: 36px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  color: #2c4485;
+  background: #e7f3f5;
+  border-radius: 8px;
+}
+
+.attachment-dropzone label > span:last-child,
+.attachment-pending-list li > span {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+}
+
+.attachment-dropzone strong,
+.attachment-pending-list strong {
+  overflow: hidden;
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 650;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.attachment-dropzone small,
+.attachment-pending-list small {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.attachment-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.attachment-dropzone-disabled {
+  opacity: 0.6;
+}
+
+.attachment-pending-list li > span {
+  flex: 1;
+}
+
+.attachment-pending-list button {
+  width: 44px;
+  height: 44px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  color: var(--secondary);
+  background: transparent;
+  border: 0;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.attachment-pending-list button:hover:enabled {
+  color: var(--red);
+  background: var(--red-soft);
+}
+
+.attachment-help,
+.attachment-total,
+.attachment-empty {
+  margin: 0;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.attachment-total {
+  color: #317883;
+}
+
+.attachment-error {
+  margin: 0;
+  color: var(--red);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.optional-label {
+  margin-left: 5px;
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.request-attachment-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.request-attachment-actions small {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+@media (max-width: 620px) {
+  .request-attachments {
+    margin: 14px 0 16px;
+    padding: 12px;
+  }
+
+  .attachment-dropzone {
+    padding: 10px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .attachment-dropzone {
+    transition: none;
+  }
+}

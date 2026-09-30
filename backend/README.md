@@ -15,7 +15,16 @@ Create a local `.env` in the repository root with `DATABASE_URL` copied from Sup
 
 From `backend/`, run `python -m pip install -r requirements.txt` and `python -m app`. The server does not create tables or run the seed on startup. Tables are managed by SQL migrations in `supabase/migrations/`; demo rows are managed by `supabase/seed.sql`.
 
-Other earlier backend draft modules are not mounted in `app.main` yet. They need to be aligned with the Supabase UUID schema before use.
+For an isolated local demonstration without Supabase credentials, run
+`python scripts/bootstrap_local_demo.py` from `backend/` before `python -m app`.
+It creates an SQLite database plus an attached `public` schema file and inserts
+the simulated fish-mortality scenario with a 48-hour review window. The script
+refuses non-SQLite database URLs and is idempotent: it inserts missing seed IDs
+without resetting workflow data. It refreshes only the initial pending decision's
+demo deadline when no request has been started. Both SQLite files are ignored
+by Git.
+
+The incident, evidence, decision, intelligence, request lifecycle, FHIR ingestion, approval and audit routes are mounted in `app.main`. The database-backed intelligence workspace reads saved evidence, hypotheses, gaps and actors, then composes the deterministic graph and ranking modules with the candidate catalog in `data/demo/candidate_evidence.csv`.
 
 `POST /incidents` is now implemented; see `docs/api/incident-create.md`. It is not authenticated yet, so keep the server local and do not run the POST example against the shared Supabase project just to test it. Run `python -m pytest -q` from `backend/` instead; those write tests use a disposable SQLite database.
 
@@ -28,10 +37,10 @@ Other earlier backend draft modules are not mounted in `app.main` yet. They need
 ## Reproducible Phase 1 setup
 
 1. Copy `.env.example` to `.env`, then set `DATABASE_URL` to the Supabase Postgres **session pooler** URI with `postgresql+psycopg://` and `?sslmode=require`. Keep `.env` local. If the password has URI special characters, percent-encode them.
-2. On a new project, run the SQL files in `supabase/migrations/` in filename order in Supabase SQL Editor, then run `supabase/seed.sql`. On an existing Phase 1 database, run only the new `20260917000300_workflow_foundation.sql` migration before rerunning the additive seed. **Do not** run `backend/schema.sql` or the old `app/db/bootstrap.py` against Supabase.
+2. On a new project, run every SQL file in `supabase/migrations/` in filename order in Supabase SQL Editor, then run `supabase/seed.sql`. On an existing database, apply every migration that has not been run yet; the request workflow and its attachment table are added by `20260917000300_workflow_foundation.sql` and `20260917000400_request_attachments.sql`. **Do not** run `backend/schema.sql` or the old `app/db/bootstrap.py` against Supabase.
 3. From `backend/`, run `python -m pip install -r requirements.txt`, then `python scripts/check_demo.py` to verify the tables and seed without changing them.
 4. Run `python -m app`; visit `http://127.0.0.1:8000/health` for liveness, `http://127.0.0.1:8000/health/readiness` for database reachability and `http://127.0.0.1:8000/docs` for the API. The server does not execute migrations or seed automatically.
 
 The seed is additive and deliberately does **not** reset a demo after users create more data or decision versions. Use a disposable Supabase project when a clean demo is required. API examples currently have no authentication; bind locally and never expose the write endpoints publicly.
 
-The versioned API contract is `docs/api/openapi.json`. Regenerate it with `python scripts/export_openapi.py` after route/schema changes. The mounted workflow endpoints are documented in `docs/api/workflow.md`; they persist request events, FHIR ingestion, decision versions, approvals and audit history through the workflow migration.
+The versioned API contract is `docs/api/openapi.json`. Regenerate it with `python scripts/export_openapi.py` after route/schema changes. The mounted workflow endpoints are documented in `docs/api/workflow.md`; they persist request events, FHIR ingestion, human hypothesis interpretations, decision versions, approvals and audit history through the workflow migration.
