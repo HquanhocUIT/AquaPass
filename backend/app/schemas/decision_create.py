@@ -1,6 +1,7 @@
 """Decision request and response contracts."""
 
 from datetime import datetime, timezone
+from typing import Any
 from uuid import UUID
 
 from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, field_validator
@@ -26,7 +27,7 @@ class DecisionVersionResponse(BaseModel):
     version_number: int
     summary: str
     uncertainty_level: str
-    evidence_snapshot: dict[str, list[str]]
+    evidence_snapshot: dict[str, Any]
     approval_status: str
     created_by: str
     approved_by: str | None

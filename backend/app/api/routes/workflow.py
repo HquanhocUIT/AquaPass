@@ -1,10 +1,13 @@
 from __future__ import annotations
 
+import hashlib
+from datetime import datetime, timedelta, timezone
 from math import isfinite
 from typing import Any
+from urllib.parse import quote
 from uuid import UUID, uuid4
 
-from fastapi import APIRouter, Body, Depends, HTTPException, status
+from fastapi import APIRouter, Body, Depends, File, HTTPException, Response, UploadFile, status
 from sqlalchemy import func, insert, select, update
 from sqlalchemy.orm import Session
 
@@ -15,14 +18,21 @@ from app.db.tables import (
     evidence,
     evidence_gaps,
     evidence_requests,
+    hypotheses,
     incidents,
     request_status_events,
+    request_attachments,
 )
 from app.modules.audit.audit_store import append_audit_event, list_audit_events
 from app.modules.decision.approval import (
     approve_decision,
     create_approval,
     reject_decision,
+)
+from app.modules.decision.hypothesis_engine import (
+    EvidenceImpact,
+    Hypothesis,
+    update_hypotheses,
 )
 from app.modules.decision.uncertainty_engine import (
     DecisionEvidence,
@@ -49,6 +59,7 @@ from app.schemas.workflow import (
     AuditEventResponse,
     DecisionApprovalRequest,
     DecisionApprovalResponse,
+    EvidenceRequestAttachmentResponse,
     EvidenceRequestCreateRequest,
     EvidenceRequestResponse,
     ObservationIngestResponse,
@@ -57,6 +68,71 @@ from app.schemas.workflow import (
 
 
 router = APIRouter(tags=["workflow"])
+
+_HYPOTHESIS_IMPACT_URL = (
+    "https://aquapass.example/fhir/StructureDefinition/hypothesis-impact"
+)
+
+MAX_ATTACHMENT_SIZE = 10 * 1024 * 1024
+MAX_ATTACHMENT_COUNT = 5
+MAX_ATTACHMENT_TOTAL_SIZE = 25 * 1024 * 1024
+_ATTACHMENT_TYPES = {
+    ".png": ("image/png", lambda data: data.startswith(b"\x89PNG\r\n\x1a\n")),
+    ".jpg": ("image/jpeg", lambda data: data.startswith(b"\xff\xd8\xff")),
+    ".jpeg": ("image/jpeg", lambda data: data.startswith(b"\xff\xd8\xff")),
+    ".webp": ("image/webp", lambda data: len(data) >= 12 and data[:4] == b"RIFF" and data[8:12] == b"WEBP"),
+    ".pdf": ("application/pdf", lambda data: data.startswith(b"%PDF-")),
+    ".csv": ("text/csv", lambda data: _is_utf8_text(data)),
+    ".txt": ("text/plain", lambda data: _is_utf8_text(data)),
+}
+
+
+def _is_utf8_text(data: bytes) -> bool:
+    try:
+        return b"\x00" not in data and bool(data.decode("utf-8-sig").strip())
+    except UnicodeDecodeError:
+        return False
+
+
+def _attachment_metadata_rows(db: Session, request_id: UUID) -> list[dict[str, Any]]:
+    rows = db.execute(
+        select(
+            request_attachments.c.id,
+            request_attachments.c.filename,
+            request_attachments.c.content_type,
+            request_attachments.c.size_bytes,
+            request_attachments.c.sha256,
+            request_attachments.c.created_at,
+        )
+        .where(request_attachments.c.request_id == request_id)
+        .order_by(request_attachments.c.created_at, request_attachments.c.id)
+    ).mappings().all()
+    return [dict(row) for row in rows]
+
+
+def _validate_attachment(upload: UploadFile, data: bytes) -> tuple[str, str]:
+    filename = (upload.filename or "").replace("\\", "/").split("/")[-1].strip()
+    if not filename or len(filename) > 255 or any(ord(char) < 32 for char in filename):
+        raise HTTPException(status_code=422, detail="Attachment filename is invalid")
+    extension = "." + filename.rsplit(".", 1)[-1].lower() if "." in filename else ""
+    spec = _ATTACHMENT_TYPES.get(extension)
+    if spec is None:
+        raise HTTPException(
+            status_code=415,
+            detail="Use PNG, JPG, WEBP, PDF, CSV or TXT files",
+        )
+    expected_type, signature_check = spec
+    provided_type = (upload.content_type or "application/octet-stream").lower()
+    accepted_declared_types = {
+        expected_type,
+        "application/octet-stream",
+        "application/x-pdf" if expected_type == "application/pdf" else expected_type,
+        "application/vnd.ms-excel" if expected_type == "text/csv" else expected_type,
+        "text/plain" if expected_type == "text/csv" else expected_type,
+    }
+    if provided_type not in accepted_declared_types or not signature_check(data):
+        raise HTTPException(status_code=415, detail="File contents do not match the selected file type")
+    return filename, expected_type
 
 
 _PRIORITY_TO_DOMAIN = {
@@ -107,6 +183,7 @@ def _request_response(db: Session, row: dict[str, Any]) -> dict[str, Any]:
     return {
         **row,
         "status_events": _status_event_rows(db, row["id"]),
+        "attachments": _attachment_metadata_rows(db, row["id"]),
     }
 
 
@@ -119,6 +196,65 @@ def _get_request(db: Session, request_id: UUID) -> dict[str, Any]:
     return dict(row)
 
 
+def _parse_hypothesis_impact(observation: dict[str, Any]) -> dict[str, str] | None:
+    extensions = observation.get("extension") or []
+    if not isinstance(extensions, list):
+        raise ValueError("Observation.extension must be an array")
+    matches = [
+        item for item in extensions
+        if isinstance(item, dict) and item.get("url") == _HYPOTHESIS_IMPACT_URL
+    ]
+    if not matches:
+        return None
+    if len(matches) != 1:
+        raise ValueError("Observation must contain at most one hypothesis-impact extension")
+
+    nested = matches[0].get("extension")
+    if not isinstance(nested, list):
+        raise ValueError("Hypothesis-impact extension must contain child extensions")
+    values: dict[str, str] = {}
+    value_fields = {
+        "hypothesisCode": "valueCode",
+        "direction": "valueCode",
+        "rationale": "valueString",
+    }
+    for item in nested:
+        if not isinstance(item, dict) or item.get("url") not in value_fields:
+            raise ValueError("Hypothesis impact contains an invalid child extension")
+        key = item["url"]
+        if key in values:
+            raise ValueError(f"Hypothesis impact contains duplicate {key}")
+        value = item.get(value_fields[key])
+        if not isinstance(value, str) or not value.strip():
+            raise ValueError(f"Hypothesis impact {key} must contain a non-empty string")
+        values[key] = value.strip()
+
+    hypothesis_code = values.get("hypothesisCode", "")
+    direction = values.get("direction", "").lower()
+    rationale = values.get("rationale", "")
+    if not hypothesis_code or not rationale:
+        raise ValueError(
+            "Hypothesis impact requires hypothesisCode, direction and rationale"
+        )
+    if direction not in {"supports", "corroborates", "contradicts"}:
+        raise ValueError("Hypothesis impact direction must be supports, corroborates or contradicts")
+    if len(rationale) > 1000:
+        raise ValueError("Hypothesis impact rationale must be 1000 characters or fewer")
+    return {
+        "hypothesis_code": hypothesis_code,
+        "direction": direction,
+        "rationale": rationale,
+    }
+
+
+def _support_state(score: float) -> str:
+    if score >= 0.66:
+        return "stronger"
+    if score <= 0.34:
+        return "weaker"
+    return "unchanged"
+
+
 def _record_status_event(
     db: Session,
     *,
@@ -128,6 +264,19 @@ def _record_status_event(
     actor_name: str,
     note: str | None,
 ) -> None:
+    occurred_at = datetime.now(timezone.utc)
+    previous_occurred_at = db.execute(
+        select(request_status_events.c.occurred_at)
+        .where(request_status_events.c.request_id == request_id)
+        .order_by(request_status_events.c.occurred_at.desc())
+        .limit(1)
+    ).scalar_one_or_none()
+    if previous_occurred_at is not None:
+        if previous_occurred_at.tzinfo is None:
+            previous_occurred_at = previous_occurred_at.replace(tzinfo=timezone.utc)
+        if occurred_at <= previous_occurred_at:
+            occurred_at = previous_occurred_at + timedelta(microseconds=1)
+
     db.execute(
         insert(request_status_events).values(
             id=uuid4(),
@@ -136,6 +285,7 @@ def _record_status_event(
             to_status=to_status,
             actor_name=actor_name,
             note=note,
+            occurred_at=occurred_at,
         )
     )
 
@@ -313,6 +463,135 @@ def get_request(request_id: UUID, db: Session = Depends(get_db)) -> dict[str, An
     return _request_response(db, _get_request(db, request_id))
 
 
+@router.post(
+    "/api/requests/{request_id}/attachments",
+    response_model=list[EvidenceRequestAttachmentResponse],
+    status_code=status.HTTP_201_CREATED,
+)
+async def upload_request_attachments(
+    request_id: UUID,
+    files: list[UploadFile] = File(...),
+    db: Session = Depends(get_db),
+) -> list[dict[str, Any]]:
+    request = _get_request(db, request_id)
+    if request["status"] != "DRAFT":
+        raise HTTPException(status_code=409, detail="Attachments can only be added to a draft request")
+    existing_count = int(
+        db.scalar(
+            select(func.count()).select_from(request_attachments).where(
+                request_attachments.c.request_id == request_id
+            )
+        )
+        or 0
+    )
+    existing_size = int(
+        db.scalar(
+            select(func.coalesce(func.sum(request_attachments.c.size_bytes), 0)).where(
+                request_attachments.c.request_id == request_id
+            )
+        )
+        or 0
+    )
+    if not files or existing_count + len(files) > MAX_ATTACHMENT_COUNT:
+        raise HTTPException(
+            status_code=422,
+            detail=f"A request can include between 1 and {MAX_ATTACHMENT_COUNT} files in total",
+        )
+
+    prepared: list[dict[str, Any]] = []
+    total_size = existing_size
+    previous_created_at = db.scalar(
+        select(func.max(request_attachments.c.created_at)).where(
+            request_attachments.c.request_id == request_id
+        )
+    )
+    created_at = datetime.now(timezone.utc)
+    if previous_created_at is not None:
+        if previous_created_at.tzinfo is None:
+            previous_created_at = previous_created_at.replace(tzinfo=timezone.utc)
+        if created_at <= previous_created_at:
+            created_at = previous_created_at + timedelta(microseconds=1)
+    for upload in files:
+        data = await upload.read(MAX_ATTACHMENT_SIZE + 1)
+        if not data:
+            raise HTTPException(status_code=422, detail="Empty files cannot be attached")
+        if len(data) > MAX_ATTACHMENT_SIZE:
+            raise HTTPException(status_code=413, detail="Each attachment must be 10 MB or smaller")
+        total_size += len(data)
+        if total_size > MAX_ATTACHMENT_TOTAL_SIZE:
+            raise HTTPException(status_code=413, detail="Attachments must total 25 MB or less")
+        filename, content_type = _validate_attachment(upload, data)
+        prepared.append(
+            {
+                "id": uuid4(),
+                "request_id": request_id,
+                "filename": filename,
+                "content_type": content_type,
+                "size_bytes": len(data),
+                "sha256": hashlib.sha256(data).hexdigest(),
+                "data": data,
+                "created_at": created_at + timedelta(microseconds=len(prepared)),
+            }
+        )
+
+    try:
+        db.execute(insert(request_attachments), prepared)
+        append_audit_event(
+            db,
+            incident_id=request["incident_id"],
+            entity_type="evidence_request",
+            entity_id=request_id,
+            event_type="REQUEST_ATTACHMENT_ADDED",
+            actor_name=request["requested_by"],
+            payload={
+                "attachment_count": len(prepared),
+                "attachment_ids": [str(item["id"]) for item in prepared],
+            },
+        )
+        db.commit()
+    except Exception:
+        db.rollback()
+        raise
+
+    saved_rows = db.execute(
+        select(
+            request_attachments.c.id,
+            request_attachments.c.filename,
+            request_attachments.c.content_type,
+            request_attachments.c.size_bytes,
+            request_attachments.c.sha256,
+            request_attachments.c.created_at,
+        ).where(request_attachments.c.id.in_([item["id"] for item in prepared]))
+    ).mappings().all()
+    saved_by_id = {row["id"]: dict(row) for row in saved_rows}
+    return [saved_by_id[item["id"]] for item in prepared]
+
+
+@router.get("/api/requests/{request_id}/attachments/{attachment_id}")
+def download_request_attachment(
+    request_id: UUID,
+    attachment_id: UUID,
+    db: Session = Depends(get_db),
+) -> Response:
+    row = db.execute(
+        select(request_attachments).where(
+            request_attachments.c.id == attachment_id,
+            request_attachments.c.request_id == request_id,
+        )
+    ).mappings().first()
+    if row is None:
+        raise HTTPException(status_code=404, detail="Attachment not found")
+    return Response(
+        content=row["data"],
+        media_type=row["content_type"],
+        headers={
+            "Content-Disposition": "attachment; filename*=UTF-8''" + quote(row["filename"], safe=""),
+            "Cache-Control": "private, no-store",
+            "X-Content-Type-Options": "nosniff",
+        },
+    )
+
+
 @router.post("/api/requests/{request_id}/transitions", response_model=EvidenceRequestResponse)
 def transition_request(
     request_id: UUID,
@@ -380,6 +659,7 @@ def ingest_observation(
 
     evidence_id = uuid4()
     try:
+        hypothesis_impact = _parse_hypothesis_impact(observation)
         value_numeric, value_text, unit = _observation_value(observation)
         result = fhir_observation_to_evidence_result(
             observation,
@@ -407,6 +687,7 @@ def ingest_observation(
                     "fhir_observation_id": observation.get("id"),
                     "request_id": str(request_id),
                     "simulated": bool(observation.get("meta", {}).get("tag")),
+                    "hypothesis_impact": hypothesis_impact,
                 },
                 is_simulated=bool(observation.get("meta", {}).get("tag")),
             )
@@ -439,7 +720,7 @@ def ingest_observation(
             raise HTTPException(status_code=409, detail="Decision has no version to update")
 
         evidence_rows = db.execute(
-            select(evidence.c.id, evidence.c.state, evidence.c.reliability_score)
+            select(evidence.c.id, evidence.c.code, evidence.c.state, evidence.c.reliability_score)
             .where(evidence.c.incident_id == row["incident_id"])
             .order_by(evidence.c.observed_at, evidence.c.id)
         ).mappings().all()
@@ -459,12 +740,98 @@ def ingest_observation(
                 for item in evidence_rows
             ],
         )
+        hypothesis_updates: list[dict[str, Any]] = []
+        if hypothesis_impact is not None:
+            hypothesis_row = db.execute(
+                select(hypotheses).where(
+                    hypotheses.c.incident_id == row["incident_id"],
+                    hypotheses.c.code == hypothesis_impact["hypothesis_code"],
+                    hypotheses.c.status == "ACTIVE",
+                )
+            ).mappings().first()
+            if hypothesis_row is None:
+                raise HTTPException(
+                    status_code=422,
+                    detail="Hypothesis impact references no active hypothesis on this incident",
+                )
+
+            previous_score = float(hypothesis_row["support_score"])
+            updated_hypothesis = update_hypotheses(
+                [
+                    Hypothesis(
+                        hypothesis_id=str(hypothesis_row["id"]),
+                        name=str(hypothesis_row["title"]),
+                        status=_support_state(previous_score),
+                    )
+                ],
+                [
+                    EvidenceImpact(
+                        evidence_id=str(evidence_id),
+                        hypothesis_id=str(hypothesis_row["id"]),
+                        direction=hypothesis_impact["direction"],
+                        rationale=hypothesis_impact["rationale"],
+                    )
+                ],
+            )[0]
+            score_delta = (
+                0.10
+                if hypothesis_impact["direction"] in {"supports", "corroborates"}
+                else -0.10
+            )
+            next_score = round(max(0.0, min(1.0, previous_score + score_delta)), 4)
+            db.execute(
+                update(hypotheses)
+                .where(hypotheses.c.id == hypothesis_row["id"])
+                .values(support_score=next_score)
+            )
+            hypothesis_updates.append(
+                {
+                    "hypothesis_id": str(hypothesis_row["id"]),
+                    "hypothesis_code": str(hypothesis_row["code"]),
+                    "title": str(hypothesis_row["title"]),
+                    "previous_status": updated_hypothesis.previous_status,
+                    "new_status": updated_hypothesis.new_status,
+                    "previous_support_score": previous_score,
+                    "new_support_score": next_score,
+                    "direction": hypothesis_impact["direction"],
+                    "triggering_evidence_id": str(evidence_id),
+                    "rationale": hypothesis_impact["rationale"],
+                }
+            )
+            performers = observation.get("performer") or []
+            impact_actor = (
+                performers[0].get("display")
+                if performers and isinstance(performers[0], dict)
+                else None
+            ) or "observation-ingestion"
+            append_audit_event(
+                db,
+                incident_id=row["incident_id"],
+                entity_type="hypothesis",
+                entity_id=UUID(str(hypothesis_row["id"])),
+                event_type="HYPOTHESIS_UPDATED",
+                actor_name=str(impact_actor),
+                payload=hypothesis_updates[-1],
+            )
         evidence_snapshot = {
             "evidence_ids": [str(item["id"]) for item in evidence_rows],
+            "evidence_codes": [str(item["code"]) for item in evidence_rows],
             "triggering_evidence_id": str(evidence_id),
             "uncertainty_score": uncertainty.score,
+            "hypothesis_updates": hypothesis_updates,
         }
         next_version = int(version["version_number"]) + 1
+        impact_summary = ""
+        if hypothesis_updates:
+            impact_summary = (
+                " Human interpretation: "
+                + hypothesis_updates[0]["hypothesis_code"]
+                + " "
+                + hypothesis_updates[0]["new_status"]
+                + " — "
+                + hypothesis_updates[0]["rationale"].rstrip(". ")
+                + "."
+            )
         db.execute(
             insert(decision_versions).values(
                 id=uuid4(),
@@ -472,7 +839,7 @@ def ingest_observation(
                 version_number=next_version,
                 summary=(
                     f"New evidence {row['requested_evidence_code']} received from "
-                    f"{result.source}; human approval is required."
+                    f"{result.source}.{impact_summary} Human approval is required."
                 ),
                 uncertainty_level=uncertainty.level,
                 evidence_snapshot=evidence_snapshot,
@@ -536,6 +903,7 @@ def ingest_observation(
         "decision_version": next_version,
         "uncertainty_level": uncertainty.level,
         "value": result.value,
+        "hypothesis_updates": hypothesis_updates,
     }
 
 

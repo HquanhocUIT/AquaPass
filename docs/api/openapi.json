@@ -253,6 +253,23 @@
         "title": "AuditEventResponse",
         "type": "object"
       },
+      "Body_upload_request_attachments_api_requests__request_id__attachments_post": {
+        "properties": {
+          "files": {
+            "items": {
+              "contentMediaType": "application/octet-stream",
+              "type": "string"
+            },
+            "title": "Files",
+            "type": "array"
+          }
+        },
+        "required": [
+          "files"
+        ],
+        "title": "Body_upload_request_attachments_api_requests__request_id__attachments_post",
+        "type": "object"
+      },
       "DecisionApprovalRequest": {
         "properties": {
           "action": {
@@ -857,6 +874,46 @@
         "title": "EvidenceGraphRecordRequest",
         "type": "object"
       },
+      "EvidenceRequestAttachmentResponse": {
+        "properties": {
+          "content_type": {
+            "title": "Content Type",
+            "type": "string"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "filename": {
+            "title": "Filename",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "sha256": {
+            "title": "Sha256",
+            "type": "string"
+          },
+          "size_bytes": {
+            "title": "Size Bytes",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "filename",
+          "content_type",
+          "size_bytes",
+          "sha256",
+          "created_at"
+        ],
+        "title": "EvidenceRequestAttachmentResponse",
+        "type": "object"
+      },
       "EvidenceRequestCreateRequest": {
         "properties": {
           "assigned_actor_id": {
@@ -969,6 +1026,13 @@
               }
             ],
             "title": "Assigned Actor Id"
+          },
+          "attachments": {
+            "items": {
+              "$ref": "#/components/schemas/EvidenceRequestAttachmentResponse"
+            },
+            "title": "Attachments",
+            "type": "array"
           },
           "created_at": {
             "format": "date-time",
@@ -1381,6 +1445,102 @@
         "title": "IncidentDetailResponse",
         "type": "object"
       },
+      "IncidentListItemResponse": {
+        "properties": {
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "description": {
+            "title": "Description",
+            "type": "string"
+          },
+          "evidence_count": {
+            "title": "Evidence Count",
+            "type": "integer"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "incident_type": {
+            "title": "Incident Type",
+            "type": "string"
+          },
+          "latitude": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Latitude"
+          },
+          "location_name": {
+            "title": "Location Name",
+            "type": "string"
+          },
+          "longitude": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Longitude"
+          },
+          "occurred_at": {
+            "format": "date-time",
+            "title": "Occurred At",
+            "type": "string"
+          },
+          "pending_decision_count": {
+            "title": "Pending Decision Count",
+            "type": "integer"
+          },
+          "severity": {
+            "title": "Severity",
+            "type": "string"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "title": "Updated At",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "description",
+          "incident_type",
+          "location_name",
+          "latitude",
+          "longitude",
+          "severity",
+          "status",
+          "occurred_at",
+          "created_at",
+          "updated_at",
+          "evidence_count",
+          "pending_decision_count"
+        ],
+        "title": "IncidentListItemResponse",
+        "type": "object"
+      },
       "IncidentResponse": {
         "properties": {
           "created_at": {
@@ -1495,6 +1655,14 @@
       },
       "IntelligenceOverviewResponse": {
         "properties": {
+          "actors": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Actors",
+            "type": "array"
+          },
           "gaps": {
             "items": {
               "additionalProperties": true,
@@ -1509,6 +1677,22 @@
               "type": "object"
             },
             "title": "Graph",
+            "type": "array"
+          },
+          "hypotheses": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Hypotheses",
+            "type": "array"
+          },
+          "profiles": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Profiles",
             "type": "array"
           },
           "ranking": {
@@ -1569,6 +1753,14 @@
             "format": "uuid",
             "title": "Evidence Id",
             "type": "string"
+          },
+          "hypothesis_updates": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Hypothesis Updates",
+            "type": "array"
           },
           "incident_id": {
             "format": "uuid",
@@ -1947,12 +2139,7 @@
             "type": "string"
           },
           "evidence_snapshot": {
-            "additionalProperties": {
-              "items": {
-                "type": "string"
-              },
-              "type": "array"
-            },
+            "additionalProperties": true,
             "title": "Evidence Snapshot",
             "type": "object"
           },
@@ -2245,6 +2432,50 @@
         ]
       }
     },
+    "/api/intelligence/incidents/{incident_id}/overview": {
+      "get": {
+        "description": "Compose current database evidence with the deterministic intelligence modules.",
+        "operationId": "get_incident_intelligence_overview_api_intelligence_incidents__incident_id__overview_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "incident_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Incident Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IntelligenceOverviewResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Incident Intelligence Overview",
+        "tags": [
+          "intelligence"
+        ]
+      }
+    },
     "/api/intelligence/overview": {
       "post": {
         "description": "Return graph, state, gap and ranking data in one frontend call.\n\nSang's deterministic graph and ranking modules remain the source of truth;\nthis route only composes their existing contracts for the decision workspace.",
@@ -2449,6 +2680,114 @@
           }
         },
         "summary": "Get Request",
+        "tags": [
+          "workflow"
+        ]
+      }
+    },
+    "/api/requests/{request_id}/attachments": {
+      "post": {
+        "operationId": "upload_request_attachments_api_requests__request_id__attachments_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "request_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Request Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_upload_request_attachments_api_requests__request_id__attachments_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/EvidenceRequestAttachmentResponse"
+                  },
+                  "title": "Response Upload Request Attachments Api Requests  Request Id  Attachments Post",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Upload Request Attachments",
+        "tags": [
+          "workflow"
+        ]
+      }
+    },
+    "/api/requests/{request_id}/attachments/{attachment_id}": {
+      "get": {
+        "operationId": "download_request_attachment_api_requests__request_id__attachments__attachment_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "request_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Request Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "attachment_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Attachment Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Download Request Attachment",
         "tags": [
           "workflow"
         ]
@@ -2705,6 +3044,30 @@
       }
     },
     "/incidents": {
+      "get": {
+        "description": "Return the most recently updated incidents for the workspace index.",
+        "operationId": "list_incidents_incidents_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/IncidentListItemResponse"
+                  },
+                  "title": "Response List Incidents Incidents Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "List Incidents",
+        "tags": [
+          "incidents"
+        ]
+      },
       "post": {
         "description": "Store a new incident; server-managed fields are not accepted from clients.",
         "operationId": "create_incident_incidents_post",

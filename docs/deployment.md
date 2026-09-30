@@ -26,6 +26,23 @@ python scripts/check_demo.py
 
 The check is read-only. It does not create tables or reset data.
 
+## Local demo without Supabase
+
+The repository can run the same API contract against an isolated SQLite
+database for review. From `backend/`, run:
+
+```powershell
+python scripts/bootstrap_local_demo.py
+python -m app
+```
+
+The bootstrap creates only local SQLite files, inserts a simulated incident
+with a 48-hour review window, and leaves existing request and decision history
+intact on later runs. It refreshes the untouched initial decision's deadline if
+you rerun it before creating a request. The database URL must remain SQLite for
+this script; it refuses to seed a hosted database. Run the frontend in a second
+terminal with `npm run dev` from `frontend/`.
+
 ## Run and verify the API
 
 ```powershell

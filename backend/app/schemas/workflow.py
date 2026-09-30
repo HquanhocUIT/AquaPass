@@ -4,7 +4,7 @@ from datetime import datetime
 from typing import Any, Literal
 from uuid import UUID
 
-from pydantic import BaseModel, Field, model_validator
+from pydantic import AwareDatetime, BaseModel, Field, model_validator
 
 from app.schemas.evidence import EvidenceGraphRecordRequest
 from app.schemas.intelligence import EvidenceCandidateRequest, RankEvidenceResponse
@@ -53,6 +53,15 @@ class RequestStatusEventResponse(BaseModel):
     occurred_at: datetime
 
 
+class EvidenceRequestAttachmentResponse(BaseModel):
+    id: UUID
+    filename: str
+    content_type: str
+    size_bytes: int
+    sha256: str
+    created_at: datetime
+
+
 class EvidenceRequestResponse(BaseModel):
     id: UUID
     incident_id: UUID
@@ -70,6 +79,7 @@ class EvidenceRequestResponse(BaseModel):
     created_at: datetime
     updated_at: datetime
     status_events: list[RequestStatusEventResponse] = Field(default_factory=list)
+    attachments: list[EvidenceRequestAttachmentResponse] = Field(default_factory=list)
 
 
 class ActorCapacityRequest(BaseModel):
@@ -79,8 +89,8 @@ class ActorCapacityRequest(BaseModel):
     capability: str = Field(min_length=1)
     location: str = Field(min_length=1)
     status: Literal["available", "busy", "full"]
-    available_from: datetime
-    available_until: datetime
+    available_from: AwareDatetime
+    available_until: AwareDatetime
     max_concurrent_tasks: int = Field(ge=0)
     expected_delay_minutes: int = Field(ge=0)
 
@@ -89,7 +99,7 @@ class ActorAssignmentRequest(BaseModel):
     evidence_id: str = Field(min_length=1)
     required_capability: str = Field(min_length=1)
     required_location: str | None = None
-    decision_deadline: datetime
+    decision_deadline: AwareDatetime
     actors: list[ActorCapacityRequest] = Field(min_length=1)
 
 
@@ -144,6 +154,7 @@ class ObservationIngestResponse(BaseModel):
     decision_version: int
     uncertainty_level: str
     value: str
+    hypothesis_updates: list[dict[str, Any]] = Field(default_factory=list)
 
 
 class IntelligenceOverviewRequest(BaseModel):
@@ -162,3 +173,6 @@ class IntelligenceOverviewResponse(BaseModel):
     states: list[IntelligenceStateResponse]
     gaps: list[dict[str, Any]]
     ranking: RankEvidenceResponse
+    profiles: list[dict[str, Any]] = Field(default_factory=list)
+    hypotheses: list[dict[str, Any]] = Field(default_factory=list)
+    actors: list[dict[str, Any]] = Field(default_factory=list)

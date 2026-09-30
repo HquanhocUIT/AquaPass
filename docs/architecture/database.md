@@ -119,3 +119,5 @@ The authoritative PostgreSQL DDL is in `supabase/migrations/` and must be applie
 `backend/schema.sql`, `backend/app/models/domain.py` and `backend/app/db/bootstrap.py` are older, unmounted drafts with string IDs. Do **not** run or import them for the Supabase UUID deployment; reconcile or retire them in a separate reviewed change.
 
 Migration `20260917000300_workflow_foundation.sql` adds hypotheses, evidence gaps, actors, evidence requests, request-status events and audit events. Composite foreign keys enforce that a gap/request points to a decision from the same incident. `result_evidence_id` links a completed request to the returned evidence. Database status checks constrain valid values; application services still need to enforce transition order, permissions and human confirmation before those write APIs are exposed.
+
+Migration `20260917000400_request_attachments.sql` adds request-scoped file metadata and binary content. The API validates allowed file signatures and enforces per-file and per-request size limits before storing an upload.

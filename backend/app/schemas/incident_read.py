@@ -49,3 +49,8 @@ class IncidentResponse(BaseModel):
 class IncidentDetailResponse(IncidentResponse):
     evidence: list[EvidenceResponse]
     decisions: list[DecisionResponse]
+
+
+class IncidentListItemResponse(IncidentResponse):
+    evidence_count: int
+    pending_decision_count: int
