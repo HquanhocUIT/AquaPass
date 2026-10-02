@@ -6,6 +6,7 @@ from app.api.routes.decision import router as decision_router
 from app.api.routes.evidence import router as evidence_router
 from app.api.routes.intelligence import router as intelligence_router
 from app.api.routes.workflow import router as workflow_router
+from app.api.routes.ai import router as ai_router
 
 from app.api.routes.decision_create import router as decision_create_router
 from app.api.routes.decision_read import router as decision_read_router
@@ -39,6 +40,7 @@ app.include_router(ranking_router)
 app.include_router(decision_router)
 app.include_router(intelligence_router)
 app.include_router(workflow_router)
+app.include_router(ai_router)
 
 # Upstream foundation routes
 app.include_router(incident_read_router)

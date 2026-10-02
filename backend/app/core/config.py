@@ -14,6 +14,10 @@ class Settings(BaseSettings):
     api_port: int = 8000
     database_url: str = "sqlite:///./aquapass.db"
     cors_origins: str = "http://localhost:3000"
+    llm_enabled: bool = False
+    llm_api_key: str | None = None
+    llm_model: str = "gemini-2.5-flash-lite"
+    llm_timeout_seconds: float = 12.0
 
     model_config = SettingsConfigDict(
         env_file=PROJECT_ROOT / ".env",

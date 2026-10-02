@@ -63,7 +63,37 @@ move request through its lifecycle → inspect FHIR `ServiceRequest`/`Task` →
 submit FHIR `Observation` → receive evidence on the same incident → create a
 new pending decision version → human approval → inspect audit history.
 
-This repository contains a backend contract and local verification. A public
-production deployment still needs a hosting provider, secret configuration,
-authentication and a frontend deployment; those are intentionally not
-invented by the MVP backend.
+## Hosted deployment target
+
+The repository includes a Render Blueprint at `render.yaml` and a backend
+Dockerfile at `backend/Dockerfile`. The intended hosted arrangement is:
+
+- Supabase for PostgreSQL;
+- Render for the FastAPI backend;
+- Vercel for the Next.js frontend.
+
+### Deploy the backend to Render
+
+1. Push the repository to GitHub, then create a new Render Blueprint from the
+   repository root. Render reads `render.yaml` and builds `backend/Dockerfile`.
+2. Set `DATABASE_URL` to the Supabase session-pooler URL using the
+   `postgresql+psycopg://` SQLAlchemy format from the Supabase setup above.
+3. Set `CORS_ORIGINS` to the final Vercel URL. Keep `LLM_ENABLED=false` unless
+   Gemini is intentionally configured for the hosted demo.
+4. Apply the Supabase migrations and seed before opening the frontend.
+5. Verify `https://<render-service>.onrender.com/health` and
+   `/health/readiness`.
+
+### Deploy the frontend to Vercel
+
+1. Import the same repository into Vercel.
+2. Set the project root directory to `frontend`; Vercel detects Next.js and
+   uses `npm run build`.
+3. Set `NEXT_PUBLIC_API_URL` to the Render service URL, then redeploy.
+4. Copy the final Vercel URL back into Render's `CORS_ORIGINS` and redeploy
+   the backend.
+
+The write API still needs authentication/authorization before this becomes a
+public production service. Until that protection is added, use the hosted
+deployment only as a restricted review environment and do not expose it as a
+trusted public system.

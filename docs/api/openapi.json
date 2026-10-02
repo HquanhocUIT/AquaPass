@@ -193,6 +193,239 @@
         "title": "ActorCapacityRequest",
         "type": "object"
       },
+      "AiEvidenceGapResponse": {
+        "properties": {
+          "decision_id": {
+            "title": "Decision Id",
+            "type": "string"
+          },
+          "decision_impact": {
+            "title": "Decision Impact",
+            "type": "string"
+          },
+          "evidence_id": {
+            "title": "Evidence Id",
+            "type": "string"
+          },
+          "evidence_type": {
+            "title": "Evidence Type",
+            "type": "string"
+          },
+          "gap_id": {
+            "title": "Gap Id",
+            "type": "string"
+          },
+          "incident_id": {
+            "title": "Incident Id",
+            "type": "string"
+          },
+          "priority": {
+            "title": "Priority",
+            "type": "string"
+          },
+          "reason": {
+            "title": "Reason",
+            "type": "string"
+          },
+          "target_hypothesis": {
+            "title": "Target Hypothesis",
+            "type": "string"
+          }
+        },
+        "required": [
+          "gap_id",
+          "incident_id",
+          "decision_id",
+          "evidence_id",
+          "evidence_type",
+          "target_hypothesis",
+          "reason",
+          "decision_impact",
+          "priority"
+        ],
+        "title": "AiEvidenceGapResponse",
+        "type": "object"
+      },
+      "AiEvidenceGapsRequest": {
+        "description": "Evidence graph input for grounded Gemini gap suggestions.",
+        "properties": {
+          "records": {
+            "items": {
+              "$ref": "#/components/schemas/EvidenceGraphRecordRequest"
+            },
+            "minItems": 1,
+            "title": "Records",
+            "type": "array"
+          }
+        },
+        "required": [
+          "records"
+        ],
+        "title": "AiEvidenceGapsRequest",
+        "type": "object"
+      },
+      "AiEvidenceGapsResponse": {
+        "properties": {
+          "fallback_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fallback Reason"
+          },
+          "gaps": {
+            "items": {
+              "$ref": "#/components/schemas/AiEvidenceGapResponse"
+            },
+            "title": "Gaps",
+            "type": "array"
+          },
+          "model": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Model"
+          },
+          "provider": {
+            "enum": [
+              "gemini",
+              "deterministic_fallback"
+            ],
+            "title": "Provider",
+            "type": "string"
+          }
+        },
+        "required": [
+          "provider"
+        ],
+        "title": "AiEvidenceGapsResponse",
+        "type": "object"
+      },
+      "AiRankingExplanationItem": {
+        "properties": {
+          "candidate_name": {
+            "title": "Candidate Name",
+            "type": "string"
+          },
+          "evidence_id": {
+            "title": "Evidence Id",
+            "type": "string"
+          },
+          "explanation": {
+            "title": "Explanation",
+            "type": "string"
+          },
+          "rank": {
+            "title": "Rank",
+            "type": "integer"
+          },
+          "score": {
+            "title": "Score",
+            "type": "number"
+          },
+          "selected": {
+            "title": "Selected",
+            "type": "boolean"
+          },
+          "strengths": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Strengths",
+            "type": "array"
+          },
+          "tradeoffs": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Tradeoffs",
+            "type": "array"
+          }
+        },
+        "required": [
+          "evidence_id",
+          "candidate_name",
+          "rank",
+          "score",
+          "selected",
+          "explanation"
+        ],
+        "title": "AiRankingExplanationItem",
+        "type": "object"
+      },
+      "AiRankingExplanationRequest": {
+        "description": "Candidate input for grounded Gemini ranking explanations.",
+        "properties": {
+          "candidates": {
+            "items": {
+              "$ref": "#/components/schemas/EvidenceCandidateRequest"
+            },
+            "minItems": 1,
+            "title": "Candidates",
+            "type": "array"
+          }
+        },
+        "required": [
+          "candidates"
+        ],
+        "title": "AiRankingExplanationRequest",
+        "type": "object"
+      },
+      "AiRankingExplanationResponse": {
+        "properties": {
+          "fallback_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fallback Reason"
+          },
+          "model": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Model"
+          },
+          "provider": {
+            "enum": [
+              "gemini",
+              "deterministic_fallback"
+            ],
+            "title": "Provider",
+            "type": "string"
+          },
+          "results": {
+            "items": {
+              "$ref": "#/components/schemas/AiRankingExplanationItem"
+            },
+            "title": "Results",
+            "type": "array"
+          }
+        },
+        "required": [
+          "provider"
+        ],
+        "title": "AiRankingExplanationResponse",
+        "type": "object"
+      },
       "AuditEventResponse": {
         "properties": {
           "actor_name": {
@@ -2205,6 +2438,88 @@
           }
         },
         "summary": "Root"
+      }
+    },
+    "/api/ai/evidence-gaps": {
+      "post": {
+        "operationId": "suggest_evidence_gaps_endpoint_api_ai_evidence_gaps_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AiEvidenceGapsRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AiEvidenceGapsResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Suggest Evidence Gaps Endpoint",
+        "tags": [
+          "ai"
+        ]
+      }
+    },
+    "/api/ai/ranking-explanations": {
+      "post": {
+        "operationId": "explain_ranking_endpoint_api_ai_ranking_explanations_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AiRankingExplanationRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AiRankingExplanationResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Explain Ranking Endpoint",
+        "tags": [
+          "ai"
+        ]
       }
     },
     "/api/decisions/{decision_id}": {
